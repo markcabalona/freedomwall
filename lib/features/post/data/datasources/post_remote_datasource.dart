@@ -89,6 +89,8 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         _postStreamController = BehaviorSubject<dynamic>.seeded(const []);
         _postStreamController!.addStream(channel.stream);
       }
+
+      // broadcastStreaming allows stream-listener/ subscriber to cancel subscription and re-subscribe
       return _postStreamController!
           .asBroadcastStream()
           .asyncMap<List<PostModel>>((event) {
@@ -97,12 +99,9 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
         log(json.last.keys.toString());
 
-        final res = List<PostModel>.generate(
+        return List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
-
-        return res;
       });
-      // return _postStreamController.asBroadcastStream();
     } catch (e) {
       log(e.toString());
       throw (ServerException());

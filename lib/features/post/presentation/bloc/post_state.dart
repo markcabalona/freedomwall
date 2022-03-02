@@ -25,15 +25,16 @@ class Loaded extends PostState {
 }
 
 class StreamConnected extends PostState {
-  final _postStreamController = BehaviorSubject<List<Post>>.seeded(const []);
+  // final _postStreamController = BehaviorSubject<List<Post>>.seeded(const []);
 
-  // final Stream<List<Post>> _postStream;
-  Stream<List<Post>> get postStream =>
-      _postStreamController.asBroadcastStream();
+  final Stream<List<Post>> postStream;
+  // Stream<List<Post>> get postStream =>
+      // _postStreamController.asBroadcastStream();
 
-  StreamConnected({required postStream}) {
-    _postStreamController.addStream(postStream);
-  }
+  const StreamConnected({required this.postStream});
+  // {
+  //    _postStreamController.addStream(postStream);
+  // }
 }
 
 class PostCreated extends PostState {

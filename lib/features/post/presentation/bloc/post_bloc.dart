@@ -37,9 +37,6 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       _post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
-        // posts.first.then((value) {
-          // log(value.first.title);
-        // });
         emit(StreamConnected(postStream: posts));
       });
     });
