@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
 import 'package:freedomwall/core/widgets/loading_widget.dart';
-import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/pages/home_page.dart';
 import 'package:freedomwall/features/post/presentation/pages/specific_post_page.dart';
 import 'package:freedomwall/injection_container.dart';
 
 class InitPage extends StatelessWidget {
-  final Either<GetPostsEvent, GetPostByIdEvent> initialEvent;
-  // final Either<, SpecificPostPage> widgetToLoad;
+  final Either<StreamPostsEvent, GetPostByIdEvent> initialEvent;
   const InitPage({
     required this.initialEvent,
     Key? key,
@@ -26,13 +24,12 @@ class InitPage extends StatelessWidget {
           builder: (context, state) {
             //initial state
             if (state is Initial) {
-              BlocProvider.of<PostBloc>(context).add(const StreamPostsEvent());
-              // BlocProvider.of<PostBloc>(context).add(
-              //   initialEvent.fold(
-              //     (getPostsEvent) => getPostsEvent,
-              //     (getPostByIdEvent) => getPostByIdEvent,
-              //   ),
-              // );
+              BlocProvider.of<PostBloc>(context).add(
+                initialEvent.fold(
+                  (streamPostsEvent) => streamPostsEvent,
+                  (getPostByIdEvent) => getPostByIdEvent,
+                ),
+              );
             }
             if (state is Loading) {
               return const LoadingWidget();
@@ -54,37 +51,11 @@ class InitPage extends StatelessWidget {
                   ),
                 );
               }
-              return initialEvent.fold(
-                (getPostsEvent) => HomePage(
-                  posts: state.posts,
-                ),
-                (getPostByIdEvent) => SpecificPostPage(
-                  post: state.posts[0],
-                ),
+              return SpecificPostPage(
+                post: state.posts[0],
               );
             } else if (state is StreamConnected) {
-              // return const Text("data");
-              return StreamBuilder<List<Post>>(
-                stream: state.postStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const LoadingWidget();
-                  } else if (snapshot.connectionState ==
-                          ConnectionState.active ||
-                      snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasError) {
-                      return const err.ErrorWidget(
-                          message: "Server Failure...");
-                    } else if (snapshot.hasData) {
-                      return HomePage(posts: snapshot.data!);
-                    } else {
-                      return const Text('Empty data');
-                    }
-                  } else {
-                    return Text('State: ${snapshot.connectionState}');
-                  }
-                },
-              );
+              return HomePage(posts: state.postStream);
             } else {
               return const err.ErrorWidget(message: "Page Not Found");
             }

@@ -43,7 +43,7 @@ class Router {
       return MaterialPageRoute(
         settings: settings,
         builder: (_) => const InitPage(
-          initialEvent: Left(GetPostsEvent()),
+          initialEvent: Left(StreamPostsEvent()),
         ),
       );
     }
@@ -53,7 +53,7 @@ class Router {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const InitPage(
-            initialEvent: Left(GetPostsEvent()),
+            initialEvent: Left(StreamPostsEvent()),
           ),
         );
       } else if (match.group(2) == null) {

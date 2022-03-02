@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
@@ -9,6 +10,7 @@ import 'package:freedomwall/features/post/domain/usecases/create_post.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'post_event.dart';
 part 'post_state.dart';
@@ -30,11 +32,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<StreamPostsEvent>((event, emit) async {
       emit(const Loading());
 
-      final post = await streamPosts(null);
+      final _post = await streamPosts(null);
 
-      post.fold((failure) {
+      _post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
+        // posts.first.then((value) {
+          // log(value.first.title);
+        // });
         emit(StreamConnected(postStream: posts));
       });
     });
@@ -60,48 +65,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
-        emit(Loaded(posts: [
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-        ]));
+        emit(Loaded(posts: posts));
       });
     });
 

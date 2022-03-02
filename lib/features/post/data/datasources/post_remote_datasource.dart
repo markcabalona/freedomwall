@@ -12,6 +12,7 @@ import 'package:freedomwall/features/post/data/datasources/constants.dart';
 import 'package:freedomwall/features/post/data/models/post_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 abstract class PostRemoteDataSource {
@@ -27,6 +28,7 @@ abstract class PostRemoteDataSource {
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   final http.Client client;
   final WebSocketChannel channel;
+  BehaviorSubject? _postStreamController;
 
   PostRemoteDataSourceImpl({
     required this.channel,
@@ -83,16 +85,26 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   @override
   Future<Stream<List<PostModel>>> streamPosts() async {
     try {
-      return channel.stream.asyncMap<List<PostModel>>((event) {
+      if (_postStreamController == null) {
+        _postStreamController = BehaviorSubject<dynamic>.seeded(const []);
+        _postStreamController!.addStream(channel.stream);
+      }
+      return _postStreamController!
+          .asBroadcastStream()
+          .asyncMap<List<PostModel>>((event) {
         log(event);
         List json = jsonDecode(event);
 
         log(json.last.keys.toString());
 
-        return List<PostModel>.generate(
+        final res = List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
+
+        return res;
       });
+      // return _postStreamController.asBroadcastStream();
     } catch (e) {
+      log(e.toString());
       throw (ServerException());
     }
   }

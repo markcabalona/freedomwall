@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final sl = GetIt.instance;
-WebSocketChannel? _channel;
 
 void init() {
   //! Features - Post
@@ -53,12 +52,11 @@ void init() {
     () {
       /*not sure if initializing websocket here is the best practice,
    but i have to close the channel after using it */
-      _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
-      return _channel!;
+      // _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
+      return WebSocketChannel.connect(Uri.parse(websocketUrl));
     },
-    instanceName: "websocket-instance",
-    dispose: (_) {
-      _channel!.sink.close();
+    dispose: (WebSocketChannel channel) {
+      channel.sink.close();
     },
   );
 }
