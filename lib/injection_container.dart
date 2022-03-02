@@ -49,14 +49,16 @@ void init() {
 
   //! External
   sl.registerLazySingleton(() => http.Client());
-  sl.registerLazySingleton(() {
-    /*not sure if initializing websocket here is the best practice (i think it's not lol),
+  sl.registerLazySingleton(
+    () {
+      /*not sure if initializing websocket here is the best practice,
    but i have to close the channel after using it */
-    _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
-    return _channel!;
-  });
-}
-
-void dispose() {
-  _channel?.sink.close();
+      _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
+      return _channel!;
+    },
+    instanceName: "websocket-instance",
+    dispose: (_) {
+      _channel!.sink.close();
+    },
+  );
 }
