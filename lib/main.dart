@@ -9,7 +9,6 @@ import 'injection_container.dart' as di;
 void main() {
   di.init();
   runApp(const MyApp());
-  di.dispose();
 }
 
 class MyApp extends StatelessWidget {
