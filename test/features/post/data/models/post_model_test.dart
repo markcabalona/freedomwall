@@ -61,17 +61,6 @@ void main() {
       PostModel result = PostModel.fromJson(tJsonMap);
       expect(result, expectedPostModel);
     });
-    test('toJson. Should get a jsonMap', () async {
-      //example json to post(http request) a Post to the API
-      Map<String, dynamic> expectedMap = {
-        "id": expectedPostModel.id,
-        "title": expectedPostModel.title,
-        "creator": expectedPostModel.creator,
-        "content": expectedPostModel.content,
-      };
-
-      Map<String, dynamic> result = expectedPostModel.toJson;
-      expect(result, expectedMap);
-    });
+   
   });
 }

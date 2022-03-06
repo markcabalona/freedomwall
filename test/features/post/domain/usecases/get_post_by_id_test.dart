@@ -7,7 +7,8 @@ import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'post_reporsitory_test.mocks.dart';
+import 'get_post_by_id_test.mocks.dart';
+
 
 @GenerateMocks([PostRepository])
 void main() {

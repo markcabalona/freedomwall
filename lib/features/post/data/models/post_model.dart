@@ -34,9 +34,20 @@ class PostModel extends Post {
             .map((jsonComment) => CommentModel.fromJson(jsonComment))
             .toList(),
       );
+}
+
+class PostCreateModel {
+  final String title;
+  final String creator;
+  final String content;
+
+  const PostCreateModel({
+    required this.creator,
+    required this.title,
+    required this.content,
+  });
 
   Map<String, dynamic> get toJson => {
-        "id": id,
         "title": title,
         "creator": creator,
         "content": content,

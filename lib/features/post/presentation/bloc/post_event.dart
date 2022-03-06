@@ -41,7 +41,7 @@ class GetPostByIdEvent extends PostEvent {
 }
 
 class CreatePostEvent extends PostEvent {
-  final PostModel post;
+  final PostCreateModel post;
   const CreatePostEvent({required this.post});
 
   @override

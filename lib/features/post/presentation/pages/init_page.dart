@@ -55,6 +55,7 @@ class InitPage extends StatelessWidget {
                 post: state.posts[0],
               );
             } else if (state is StreamConnected) {
+              // state.
               return HomePage(posts: state.postStream);
             } else {
               return const err.ErrorWidget(message: "Page Not Found");

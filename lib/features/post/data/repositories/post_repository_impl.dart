@@ -36,7 +36,7 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
-  Future<Either<Failure, void>> createPost(PostModel post) async {
+  Future<Either<Failure, void>> createPost(PostCreateModel post) async {
     try {
       return Right(await remoteDataSource.createPost(post));
     } on ServerException {

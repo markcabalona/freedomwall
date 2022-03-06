@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          foregroundColor: Theme.of(context).primaryColor,
+        appBarTheme: const AppBarTheme(
+          // backgroundColor: Colors.transparent,
+          // shadowColor: Colors.transparent,
+          // foregroundColor: Theme.of(context).primaryColor,
         ),
       ),
       onGenerateRoute: Router.generateRoute,

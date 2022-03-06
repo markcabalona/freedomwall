@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/homepage/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
 
 class SpecificPostPage extends StatelessWidget {
   final Post post;

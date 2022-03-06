@@ -10,7 +10,6 @@ import 'package:freedomwall/features/post/domain/usecases/create_post.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
-import 'package:rxdart/rxdart.dart';
 
 part 'post_event.dart';
 part 'post_state.dart';

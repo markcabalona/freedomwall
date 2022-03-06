@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post/post_body_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post/post_header_widget.dart';
 import 'package:intl/intl.dart';
 
 class PostWidget extends StatefulWidget {
@@ -51,78 +53,17 @@ class _PostWidgetState extends State<PostWidget>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
-              SizedBox(
-                height: 80,
-                width: widget.width,
-                // Title | Creator
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.post.title,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontSize:
-                            Theme.of(context).textTheme.headline5!.fontSize,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        shadowColor: MaterialStateColor.resolveWith(
-                            (states) => Theme.of(context).primaryColor),
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.transparent),
-                      ),
-                      child: Text(
-                        "- " + widget.post.creator,
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(.80),
-                          fontSize:
-                              Theme.of(context).textTheme.subtitle1!.fontSize,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              PostHeaderWidget(
+                title: widget.post.title,
+                creator: widget.post.creator,
+                postId: widget.post.id.toString(),
               ),
-
               // Body - post content
-              AnimatedSize(
-                duration: const Duration(milliseconds: 500),
-                curve: _isExpanded ? Curves.easeOut : Curves.bounceOut,
-                child: Column(
-                  children: [
-                    Text(
-                      widget.post.content,
-                      textAlign: TextAlign.left,
-                      softWrap: true,
-                      overflow: TextOverflow.fade,
-                      maxLines: _isExpanded ? null : 5,
-                      style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.subtitle2!.fontSize,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
-                      },
-                      child: Text(_isExpanded ? "See less" : "...See more"),
-                    ),
-                  ],
-                ),
-              ),
-
+              PostBodyWidget(text: widget.post.content),
               //Like | Dislike | Comment
               SizedBox(
                 height: 80,
@@ -147,7 +88,7 @@ class _PostWidgetState extends State<PostWidget>
                                   (states) => Colors.transparent),
                             ),
                             child: Text(
-                              "${numFormat.format(widget.post.comments.length + 87)} comments",
+                              "${numFormat.format(widget.post.comments.length)} comments",
                               style: const TextStyle(
                                 decoration: TextDecoration.underline,
                                 decorationThickness: 1.5,

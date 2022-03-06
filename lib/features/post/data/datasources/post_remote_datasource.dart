@@ -20,7 +20,7 @@ abstract class PostRemoteDataSource {
 
   Future<List<PostModel>> getPosts({String? creator, String? title});
 
-  Future<void> createPost(PostModel post);
+  Future<void> createPost(PostCreateModel post);
 
   Future<Stream<List<Post>>> streamPosts();
 }
@@ -36,7 +36,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   });
 
   @override
-  Future<void> createPost(PostModel post) {
+  Future<void> createPost(PostCreateModel post) {
     return http
         .post(Uri.parse(apiUrl + 'post/'),
             headers: <String, String>{
@@ -90,17 +90,16 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         _postStreamController!.addStream(channel.stream);
       }
 
-      // broadcastStreaming allows stream-listener/ subscriber to cancel subscription and re-subscribe
-      return _postStreamController!
-          .asBroadcastStream()
-          .asyncMap<List<PostModel>>((event) {
-        log(event);
+      return _postStreamController!.asyncMap<List<PostModel>>((event) {
+        log(event.runtimeType.toString());
         List json = jsonDecode(event);
 
         log(json.last.keys.toString());
 
         return List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
+      }).handleError((e) {
+        log(e.toString());
       });
     } catch (e) {
       log(e.toString());

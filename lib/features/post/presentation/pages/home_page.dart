@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freedomwall/core/widgets/loading_widget.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/homepage/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
 
 class HomePage extends StatelessWidget {
@@ -15,6 +14,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _width = MediaQuery.of(context).size.width;
     return StreamBuilder<List<Post>>(
       stream: posts,
       builder: (context, snapshot) {
@@ -23,42 +23,63 @@ class HomePage extends StatelessWidget {
         } else if (snapshot.connectionState == ConnectionState.active ||
             snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return const err.ErrorWidget(message: "Server Failure...");
+            return err.ErrorWidget(message: snapshot.error.toString());
           } else if (snapshot.hasData) {
             return Scaffold(
               extendBodyBehindAppBar: true,
-              // extendBody: true,
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {},
+                child: const Icon(Icons.add_comment),
+              ),
               appBar: AppBar(
                 leadingWidth: 100,
                 leading: TextButton(
                   onPressed: () {
                     Navigator.restorablePopAndPushNamed(context, '/');
                   },
-                  child: const Text("FreedomWall"),
+                  child: const Text(
+                    "FreedomWall",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
-              body: MasonryGridView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  addAutomaticKeepAlives: true,
-                  addRepaintBoundaries: true,
-                  padding: const EdgeInsets.only(
-                      top: kToolbarHeight, bottom: 20, left: 100, right: 100),
-                  gridDelegate:
-                      const SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 600,
+              body: Column(
+                children: [
+                  Container(
+                    color: Colors.amber,
+                    height: 30,
                   ),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return PostWidget(
-                      post: snapshot.data![index],
-                    );
-                  }),
+                  Expanded(
+                    child: MasonryGridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        addAutomaticKeepAlives: true,
+                        addRepaintBoundaries: true,
+                        // cacheExtent: 10,
+                        padding: const EdgeInsets.only(
+                          top: kToolbarHeight,
+                          bottom: 20,
+                          left: 80,
+                          right: 80,
+                        ),
+                        gridDelegate:
+                            SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: _width < 1000 ? 600 : 400,
+                        ),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          return PostWidget(
+                            post: snapshot.data![index],
+                          );
+                        }),
+                  ),
+                ],
+              ),
             );
           } else {
-            return const Text('Empty data');
+            return const err.ErrorWidget(message: 'Empty data');
           }
         } else {
-          return Text('State: ${snapshot.connectionState}');
+          return err.ErrorWidget(message: 'State: ${snapshot.connectionState}');
         }
       },
     );
