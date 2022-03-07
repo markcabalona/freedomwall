@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post_searchbar_widget.dart';
 
 class SpecificPostPage extends StatelessWidget {
   final Post post;
@@ -20,13 +21,20 @@ class SpecificPostPage extends StatelessWidget {
             onPressed: () {
               Navigator.restorablePopAndPushNamed(context, '/');
             },
-            child: const Text("FreedomWall"),
+            child: const Text(
+              "FreedomWall",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
+          actions: const [
+            PostSearchBarWidget(),
+          ],
         ),
         body: SingleChildScrollView(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: kToolbarHeight,horizontal: 80),
+              padding: const EdgeInsets.symmetric(
+                  vertical: kToolbarHeight, horizontal: 80),
               child: PostWidget(
                 post: post,
                 isExpanded: true,

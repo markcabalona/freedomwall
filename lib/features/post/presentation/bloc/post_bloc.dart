@@ -61,7 +61,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
-        emit(Loaded(posts: posts));
+        emit(PostsLoaded(posts: posts));
       });
     });
 
@@ -83,7 +83,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
               emit(Error(message: failure.message));
             },
             (post) {
-              emit(Loaded(posts: [post]));
+              emit(SinglePostLoaded(post: post));
             },
           );
         },

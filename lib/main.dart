@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +24,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
         appBarTheme: const AppBarTheme(
-          // backgroundColor: Colors.transparent,
-          // shadowColor: Colors.transparent,
-          // foregroundColor: Theme.of(context).primaryColor,
-        ),
+            // backgroundColor: Colors.transparent,
+            // shadowColor: Colors.transparent,
+            // foregroundColor: Theme.of(context).primaryColor,
+            ),
       ),
       onGenerateRoute: Router.generateRoute,
       initialRoute: '/',
@@ -36,49 +37,52 @@ class MyApp extends StatelessWidget {
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    RegExp postRegex = RegExp(r'^/posts?/?([0-9]+)?/?(comments)?/?$');
+    RegExp postRegex = RegExp(
+        r"^/posts?/?(?:([0-9]+)|((?:creator|title)=([A-Za-z0-9%'_]+)?))?/?$");
     final match = postRegex.firstMatch(settings.name ?? "");
 
-    if (settings.name == '/') {
-      return MaterialPageRoute(
-        settings: settings,
-        builder: (_) => const InitPage(
-          initialEvent: Left(StreamPostsEvent()),
-        ),
-      );
-    }
-    if (match != null) {
-      //if no post id specified in url return all posts
-      if (match.group(1) == null) {
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const InitPage(
-            initialEvent: Left(StreamPostsEvent()),
-          ),
-        );
-      } else if (match.group(2) == null) {
+    final url = Uri.parse(settings.name ?? "");
+
+    if (url.hasQuery) {
+      log("url has query");
+      final Map<String, String> query = url.queryParameters;
+      log("Query is: $query");
+      String? creator, title, id;
+      creator = query["creator"];
+      title = query["title"];
+      id = query["id"];
+
+      if (id != null) {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => InitPage(
-            initialEvent: Right(
-              GetPostByIdEvent(postId: match.group(1)!),
-            ),
+            initialEvent: GetPostByIdEvent(postId: id!),
           ),
         );
       } else {
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => Text(
-              "Comment Page for PostId ${match.group(1)}: ${match.group(2)}"),
+          builder: (_) => InitPage(
+            initialEvent: GetPostsEvent(
+              creator: creator,
+              title: title,
+            ),
+          ),
         );
       }
-    } else {
+    } else if (["/posts/", "/posts", "/"].contains(url.path)) {
       return MaterialPageRoute(
         settings: settings,
-        builder: (_) => const err.ErrorWidget(
-          message: "Page Not Found",
+        builder: (_) => const InitPage(
+          initialEvent: StreamPostsEvent(),
         ),
       );
     }
+    return MaterialPageRoute(
+      settings: settings,
+      builder: (_) => const err.ErrorWidget(
+        message: "Page Not Found",
+      ),
+    );
   }
 }

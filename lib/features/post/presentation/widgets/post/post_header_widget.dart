@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class PostHeaderWidget extends StatelessWidget {
@@ -36,7 +35,7 @@ class PostHeaderWidget extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.restorablePopAndPushNamed(
-                      context, '/post/' + postId);
+                      context, '/post/?id=' + postId);
                 },
                 style: ButtonStyle(
                   shadowColor: MaterialStateColor.resolveWith(
@@ -55,7 +54,10 @@ class PostHeaderWidget extends StatelessWidget {
             ],
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.restorablePopAndPushNamed(
+                  context, '/post/?creator=' + creator);
+            },
             style: ButtonStyle(
               shadowColor: MaterialStateColor.resolveWith(
                   (states) => Theme.of(context).primaryColor),
