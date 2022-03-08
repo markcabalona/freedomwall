@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
@@ -30,7 +28,7 @@ class _PostBodyWidgetState extends State<PostBodyWidget> {
     final tp = TextPainter(
       maxLines: 4,
       text: TextSpan(
-        text: widget.text * 15,
+        text: widget.text,
         style: TextStyle(
           overflow: TextOverflow.visible,
           fontSize: Theme.of(context).textTheme.subtitle2!.fontSize,
@@ -43,8 +41,6 @@ class _PostBodyWidgetState extends State<PostBodyWidget> {
         maxWidth: _width < 1000
             ? (_width > 760 ? (_width / 2) : _width) - 160
             : (_width / 3) - 160);
-
-    log(_width.toString());
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 500),

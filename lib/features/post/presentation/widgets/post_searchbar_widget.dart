@@ -39,9 +39,8 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 350,
-      // color: Colors.white,
       height: kToolbarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(

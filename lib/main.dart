@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/pages/init_page.dart';
@@ -9,7 +9,10 @@ import 'injection_container.dart' as di;
 
 void main() {
   di.init();
-  runApp(const MyApp());
+  runApp(BlocProvider(
+    create: (context) => di.sl<PostBloc>(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -37,22 +40,17 @@ class MyApp extends StatelessWidget {
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    RegExp postRegex = RegExp(
-        r"^/posts?/?(?:([0-9]+)|((?:creator|title)=([A-Za-z0-9%'_]+)?))?/?$");
-    final match = postRegex.firstMatch(settings.name ?? "");
-
     final url = Uri.parse(settings.name ?? "");
 
     if (url.hasQuery) {
-      log("url has query");
       final Map<String, String> query = url.queryParameters;
-      log("Query is: $query");
       String? creator, title, id;
       creator = query["creator"];
       title = query["title"];
       id = query["id"];
 
       if (id != null) {
+        log("By id");
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => InitPage(
@@ -60,6 +58,7 @@ class Router {
           ),
         );
       } else {
+        log("Get by title or creator");
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => InitPage(
@@ -71,6 +70,7 @@ class Router {
         );
       }
     } else if (["/posts/", "/posts", "/"].contains(url.path)) {
+      log("Stream all");
       return MaterialPageRoute(
         settings: settings,
         builder: (_) => const InitPage(

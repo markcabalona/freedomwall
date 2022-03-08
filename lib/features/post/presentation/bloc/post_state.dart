@@ -42,7 +42,12 @@ class StreamConnected extends PostState {
 }
 
 class PostCreated extends PostState {
-  const PostCreated();
+  final Post post;
+
+  const PostCreated({required this.post});
+
+  @override
+  List<Object> get props => super.props + [post];
 }
 
 class Error extends PostState {

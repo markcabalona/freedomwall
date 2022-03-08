@@ -12,5 +12,5 @@ abstract class PostRepository {
 
   Future<Either<Failure, List<Post>>> getPosts({String? creator, String? title});
   
-  Future<Either<Failure, void>> createPost(PostCreateModel post);
+  Future<Either<Failure, Post>> createPost(PostCreateModel post);
 }

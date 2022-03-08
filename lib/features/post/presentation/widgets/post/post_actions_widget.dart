@@ -24,8 +24,8 @@ class PostActionsWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("${numFormat.format(likes + 10000)} likes"),
-                Text("${numFormat.format(dislikes + 100)} dislikes"),
+                Text("${numFormat.format(likes)} likes"),
+                Text("${numFormat.format(dislikes)} dislikes"),
                 TextButton(
                   onPressed: () {},
                   style: ButtonStyle(

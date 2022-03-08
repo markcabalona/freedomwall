@@ -20,7 +20,7 @@ abstract class PostRemoteDataSource {
 
   Future<List<PostModel>> getPosts({String? creator, String? title});
 
-  Future<void> createPost(PostCreateModel post);
+  Future<PostModel> createPost(PostCreateModel post);
 
   Future<Stream<List<Post>>> streamPosts();
 }
@@ -36,18 +36,20 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   });
 
   @override
-  Future<void> createPost(PostCreateModel post) {
+  Future<PostModel> createPost(PostCreateModel post) {
     return http
         .post(Uri.parse(apiUrl + 'post/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: jsonEncode(post.toJson))
-        .then((result) => {
-              if (result.statusCode != HttpStatus.created)
-                throw (ServerException())
-            })
-        .onError((error, stackTrace) => throw (ServerException()));
+        .then((result) {
+      if (result.statusCode == HttpStatus.created) {
+        return PostModel.fromJson(jsonDecode(result.body));
+      } else {
+        throw (ServerException());
+      }
+    }).onError((error, stackTrace) => throw (ServerException()));
   }
 
   @override

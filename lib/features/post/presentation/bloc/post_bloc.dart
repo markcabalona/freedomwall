@@ -47,8 +47,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
       post.fold((failure) {
         emit(Error(message: failure.message));
-      }, (_) {
-        emit(const PostCreated());
+      }, (post) {
+        emit(PostCreated(post: post));
       });
     });
 
