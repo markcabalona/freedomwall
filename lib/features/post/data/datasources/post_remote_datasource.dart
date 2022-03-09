@@ -1,13 +1,12 @@
-// ignore_for_file: unused_import
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:freedomwall/core/error/exceptions.dart';
 import 'package:freedomwall/features/post/data/models/comment_model.dart';
-import 'package:freedomwall/features/post/domain/entities/comment.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/data/datasources/constants.dart';
 import 'package:freedomwall/features/post/data/models/post_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
@@ -20,7 +19,7 @@ abstract class PostRemoteDataSource {
 
   Future<List<PostModel>> getPosts({String? creator, String? title});
 
-  Future<PostModel> createPost(PostCreateModel post);
+  Future<Either<PostModel, CommentModel>> createContent(CreateModel post);
 
   Future<Stream<List<Post>>> streamPosts();
 }
@@ -36,20 +35,33 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   });
 
   @override
-  Future<PostModel> createPost(PostCreateModel post) {
-    return http
-        .post(Uri.parse(apiUrl + 'post/'),
+  Future<Either<PostModel, CommentModel>> createContent(CreateModel post) {
+    String _endPoint = "post/";
+
+    if (post is CommentCreateModel) {
+      _endPoint += "${post.postId}/comments";
+    }
+    final json = http
+        .post(Uri.parse(apiUrl + _endPoint),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: jsonEncode(post.toJson))
         .then((result) {
-      if (result.statusCode == HttpStatus.created) {
-        return PostModel.fromJson(jsonDecode(result.body));
+      return result;
+    }).onError((error, stackTrace) => throw (ServerException()));
+
+    return json.then((_json) {
+      if (_json.statusCode == HttpStatus.created) {
+        if (post is CommentModel) {
+          return Right(CommentModel.fromJson(jsonDecode(_json.body)));
+        } else {
+          return Left(PostModel.fromJson(jsonDecode(_json.body)));
+        }
       } else {
         throw (ServerException());
       }
-    }).onError((error, stackTrace) => throw (ServerException()));
+    });
   }
 
   @override

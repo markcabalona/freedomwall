@@ -22,10 +22,11 @@ class HomePage extends StatelessWidget {
         elevation: 20,
         onPressed: () {
           showDialog(
-              context: context,
-              builder: (ctx) {
-                return CreatePostDialog();
-              });
+            context: context,
+            builder: (ctx) {
+              return CreatePostDialog();
+            },
+          );
         },
         child: const Icon(
           Icons.add_comment,

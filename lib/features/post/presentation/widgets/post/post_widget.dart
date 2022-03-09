@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
+import 'package:freedomwall/features/post/presentation/widgets/comment/comments_widget.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post/post_actions_widget.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post/post_body_widget.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post/post_header_widget.dart';
@@ -9,7 +10,6 @@ class PostWidget extends StatefulWidget {
   final double height = 200;
   final double? width;
   final bool? isExpanded;
-  // final Widget header;
   const PostWidget({
     required this.post,
     this.isExpanded,
@@ -23,7 +23,8 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget>
     with AutomaticKeepAliveClientMixin {
-  late bool _isExpanded;
+  late final bool _isExpanded;
+  late final bool _commentExpanded;
   late double width;
 
   @override
@@ -31,7 +32,7 @@ class _PostWidgetState extends State<PostWidget>
 
   @override
   void initState() {
-    _isExpanded = super.widget.isExpanded ?? false;
+    _isExpanded = _commentExpanded = super.widget.isExpanded ?? false;
     width = super.widget.width ?? 400;
     super.initState();
   }
@@ -69,7 +70,8 @@ class _PostWidgetState extends State<PostWidget>
               PostActionsWidget(
                 likes: widget.post.likes,
                 dislikes: widget.post.dislikes,
-                numOfComments: widget.post.comments.length,
+                comments: widget.post.comments,
+                showComments: _isExpanded,
               ),
             ],
           ),

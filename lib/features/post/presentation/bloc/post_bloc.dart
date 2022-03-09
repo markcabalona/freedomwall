@@ -4,9 +4,10 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freedomwall/core/utils/input_converter.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/data/models/post_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/domain/usecases/create_post.dart';
+import 'package:freedomwall/features/post/domain/usecases/create_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
@@ -18,12 +19,12 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final StreamPosts streamPosts;
   final GetPosts getPosts;
   final GetPostById getPostById;
-  final CreatePost createPost;
+  final CreateContent createContent;
   final InputConverter inputConverter;
 
   PostBloc({
     required this.streamPosts,
-    required this.createPost,
+    required this.createContent,
     required this.getPosts,
     required this.getPostById,
     required this.inputConverter,
@@ -40,15 +41,19 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       });
     });
 
-    on<CreatePostEvent>((event, emit) async {
-      emit(const Loading());
+    on<CreateContentEvent>((event, emit) async {
+      if (event.content is PostModel) {
+        emit(const Loading());
+      }
 
-      final post = await createPost(event.post);
+      final post = await createContent(event.content);
 
       post.fold((failure) {
         emit(Error(message: failure.message));
       }, (post) {
-        emit(PostCreated(post: post));
+        if (post is Post) {
+          emit(PostCreated(post: post));
+        }
       });
     });
 

@@ -1,8 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:freedomwall/core/domain/entities/content.dart';
 import 'package:freedomwall/core/error/exceptions.dart';
 import 'package:freedomwall/core/error/failures.dart';
 import 'package:freedomwall/features/post/data/datasources/post_remote_datasource.dart';
-import 'package:freedomwall/features/post/data/models/post_model.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
+import 'package:freedomwall/features/post/domain/entities/comment.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/domain/repositories/post_repository.dart';
 
@@ -36,9 +38,33 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
-  Future<Either<Failure, Post>> createPost(PostCreateModel post) async {
+  Future<Either<Failure, Content>> createContent(CreateModel post) async {
     try {
-      return Right(await remoteDataSource.createPost(post));
+      final content = remoteDataSource.createContent(post).then(
+            (content) => content.fold(
+              (post) => Post(
+                id: post.id,
+                creator: post.creator,
+                title: post.title,
+                content: post.content,
+                comments: post.comments,
+                likes: post.likes,
+                dislikes: post.dislikes,
+                dateCreated: post.dateCreated,
+              ),
+              (comment) => Comment(
+                id: comment.id,
+                postId: comment.postId,
+                creator: comment.creator,
+                content: comment.content,
+                dateCreated: comment.dateCreated,
+                likes: comment.likes,
+                dislikes: comment.dislikes,
+              ),
+            ),
+          );
+
+      return Right(await content);
     } on ServerException {
       return const Left(ServerFailure(message: "Server Failure"));
     }
@@ -52,6 +78,4 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(ServerFailure(message: "Server Failure"));
     }
   }
-
-
 }

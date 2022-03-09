@@ -40,10 +40,10 @@ class GetPostByIdEvent extends PostEvent {
   List<Object> get props => super.props + [postId];
 }
 
-class CreatePostEvent extends PostEvent {
-  final PostCreateModel post;
-  const CreatePostEvent({required this.post});
+class CreateContentEvent extends PostEvent {
+  final CreateModel content;
+  const CreateContentEvent({required this.content});
 
   @override
-  List<Object> get props => super.props + [post];
+  List<Object> get props => super.props + [content];
 }

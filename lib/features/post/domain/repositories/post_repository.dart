@@ -1,8 +1,7 @@
-// ignore_for_file: unused_import
-
 import 'package:dartz/dartz.dart';
+import 'package:freedomwall/core/domain/entities/content.dart';
 import 'package:freedomwall/core/error/failures.dart';
-import 'package:freedomwall/features/post/data/models/post_model.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 
 abstract class PostRepository {
@@ -12,5 +11,5 @@ abstract class PostRepository {
 
   Future<Either<Failure, List<Post>>> getPosts({String? creator, String? title});
   
-  Future<Either<Failure, Post>> createPost(PostCreateModel post);
+  Future<Either<Failure, Content>> createContent(CreateModel post);
 }

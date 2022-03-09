@@ -153,8 +153,8 @@ class CreatePostDialog extends StatelessWidget {
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 BlocProvider.of<PostBloc>(context).add(
-                                    CreatePostEvent(
-                                        post: PostCreateModel(
+                                    CreateContentEvent(
+                                        content: PostCreateModel(
                                             creator: _creatorCtrl.text.isEmpty
                                                 ? "Anonymous"
                                                 : _creatorCtrl.text,
