@@ -24,7 +24,7 @@ class PostHeaderWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              SelectableText(
                 title,
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,

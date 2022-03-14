@@ -33,13 +33,14 @@ class MyApp extends StatelessWidget {
             ),
       ),
       onGenerateRoute: Router.generateRoute,
-      initialRoute: '/',
+      // initialRoute: '/',
     );
   }
 }
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
+
     final url = Uri.parse(settings.name ?? "");
 
     if (url.hasQuery) {
@@ -69,7 +70,7 @@ class Router {
           ),
         );
       }
-    } else if (["/posts/", "/posts", "/"].contains(url.path)) {
+    } else if (["/posts/", "/posts", "/",""].contains(url.path)) {
       log("Stream all");
       return MaterialPageRoute(
         settings: settings,

@@ -47,9 +47,9 @@ class _PostBodyWidgetState extends State<PostBodyWidget> {
       curve: _isExpanded ? Curves.easeOut : Curves.bounceOut,
       child: Column(
         children: [
-          Text(tp.text!.toPlainText(),
+          SelectableText(tp.text!.toPlainText(),
               textAlign: TextAlign.left,
-              softWrap: true,
+              scrollPhysics: const NeverScrollableScrollPhysics(),
               // overflow: TextOverflow.fade,
               maxLines: _isExpanded ? null : tp.maxLines,
               style: tp.text!.style),

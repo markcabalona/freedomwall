@@ -27,7 +27,7 @@ abstract class PostRemoteDataSource {
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   final http.Client client;
   final WebSocketChannel channel;
-  BehaviorSubject? _postStreamController;
+  BehaviorSubject? _allPostStreamController;
 
   PostRemoteDataSourceImpl({
     required this.channel,
@@ -36,10 +36,10 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
   @override
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post) {
-    String _endPoint = "post/";
+    String _endPoint = "postCreate/";
 
     if (post is CommentCreateModel) {
-      _endPoint += "${post.postId}/comments";
+      _endPoint += "${post.postId}/comment";
     }
     final json = http
         .post(Uri.parse(apiUrl + _endPoint),
@@ -53,7 +53,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
     return json.then((_json) {
       if (_json.statusCode == HttpStatus.created) {
-        if (post is CommentModel) {
+        if (post is CommentCreateModel) {
           return Right(CommentModel.fromJson(jsonDecode(_json.body)));
         } else {
           return Left(PostModel.fromJson(jsonDecode(_json.body)));
@@ -99,19 +99,19 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   @override
   Future<Stream<List<PostModel>>> streamPosts() async {
     try {
-      if (_postStreamController == null) {
-        _postStreamController = BehaviorSubject<dynamic>.seeded(const []);
-        _postStreamController!.addStream(channel.stream);
+      channel.sink.add("");
+      if (_allPostStreamController == null) {
+        _allPostStreamController = BehaviorSubject<dynamic>.seeded(const []);
+        _allPostStreamController!.addStream(channel.stream);
       }
 
-      return _postStreamController!.asyncMap<List<PostModel>>((event) {
-        log(event.runtimeType.toString());
+      return _allPostStreamController!.asyncMap<List<PostModel>>((event) {
         List json = jsonDecode(event);
 
-        log(json.last.keys.toString());
-
-        return List<PostModel>.generate(
+        final items = List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
+
+        return items;
       }).handleError((e) {
         log(e.toString());
       });

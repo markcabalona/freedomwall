@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
+import 'package:freedomwall/features/post/presentation/widgets/create_post_dialog.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
 import 'package:freedomwall/features/post/presentation/widgets/post_searchbar_widget.dart';
 
@@ -13,8 +14,20 @@ class SpecificPostPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
+        floatingActionButton: FloatingActionButton(
+          elevation: 20,
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) {
+                return CreatePostDialog();
+              },
+            );
+          },
+          child: const Icon(
+            Icons.add_comment,
+          ),
+        ),
         appBar: AppBar(
           leadingWidth: 100,
           leading: TextButton(
