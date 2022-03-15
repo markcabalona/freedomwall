@@ -3,9 +3,10 @@ import 'package:freedomwall/features/post/data/datasources/constants.dart';
 import 'package:freedomwall/features/post/data/datasources/post_remote_datasource.dart';
 import 'package:freedomwall/features/post/data/repositories/post_repository_impl.dart';
 import 'package:freedomwall/features/post/domain/repositories/post_repository.dart';
-import 'package:freedomwall/features/post/domain/usecases/create_post.dart';
+import 'package:freedomwall/features/post/domain/usecases/create_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -13,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final sl = GetIt.instance;
-WebSocketChannel? _channel;
 
 void init() {
   //! Features - Post
@@ -21,7 +21,8 @@ void init() {
   sl.registerFactory(
     () => PostBloc(
         streamPosts: sl(),
-        createPost: sl(),
+        createContent: sl(),
+        likeDislikeContent: sl(),
         getPosts: sl(),
         getPostById: sl(),
         inputConverter: sl()),
@@ -29,7 +30,8 @@ void init() {
 
   //! Usecases
   sl.registerLazySingleton(() => StreamPosts(repository: sl()));
-  sl.registerLazySingleton(() => CreatePost(repository: sl()));
+  sl.registerLazySingleton(() => CreateContent(repository: sl()));
+  sl.registerLazySingleton(() => LikeDislikeContent(repository: sl()));
   sl.registerLazySingleton(() => GetPosts(repository: sl()));
   sl.registerLazySingleton(() => GetPostById(repository: sl()));
 
@@ -53,12 +55,11 @@ void init() {
     () {
       /*not sure if initializing websocket here is the best practice,
    but i have to close the channel after using it */
-      _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
-      return _channel!;
+      // _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
+      return WebSocketChannel.connect(Uri.parse(websocketUrl));
     },
-    instanceName: "websocket-instance",
-    dispose: (_) {
-      _channel!.sink.close();
+    dispose: (WebSocketChannel channel) {
+      channel.sink.close();
     },
   );
 }

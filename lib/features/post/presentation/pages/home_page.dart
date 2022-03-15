@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:freedomwall/core/widgets/error_widget.dart' as err;
+
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/homepage/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/create_post_dialog.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/post_searchbar_widget.dart';
 
 class HomePage extends StatelessWidget {
   final List<Post> posts;
@@ -12,33 +16,58 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _width = MediaQuery.of(context).size.width;
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      // extendBody: true,
+      floatingActionButton: FloatingActionButton(
+        elevation: 20,
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (ctx) {
+              return CreatePostDialog();
+            },
+          );
+        },
+        child: const Icon(
+          Icons.add_comment,
+        ),
+      ),
       appBar: AppBar(
         leadingWidth: 100,
         leading: TextButton(
           onPressed: () {
             Navigator.restorablePopAndPushNamed(context, '/');
           },
-          child: const Text("FreedomWall"),
-        ),
-      ),
-      body: MasonryGridView.builder(
-          physics: const BouncingScrollPhysics(),
-          addAutomaticKeepAlives: true,
-          addRepaintBoundaries: true,
-          padding: const EdgeInsets.only(
-              top: kToolbarHeight, bottom: 20, left: 100, right: 100),
-          gridDelegate: const SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 600,
+          child: const Text(
+            "FreedomWall",
+            style: TextStyle(color: Colors.white),
           ),
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            return PostWidget(
-              post: posts[index],
-            );
-          }),
+        ),
+        actions: const [
+          PostSearchBarWidget(),
+        ],
+      ),
+      body: posts.isEmpty
+          ? const err.ErrorWidget(message: "No posts to show")
+          : MasonryGridView.builder(
+              physics: const BouncingScrollPhysics(),
+              addAutomaticKeepAlives: true,
+              addRepaintBoundaries: true,
+              // cacheExtent: 10,
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 80,
+              ),
+              gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: _width < 1000 ? 600 : 400,
+              ),
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return PostWidget(
+                  post: posts[index],
+                  width: 600,
+                );
+              }),
     );
   }
 }

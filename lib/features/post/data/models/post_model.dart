@@ -1,4 +1,5 @@
 import 'package:freedomwall/features/post/data/models/comment_model.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 
 class PostModel extends Post {
@@ -34,9 +35,19 @@ class PostModel extends Post {
             .map((jsonComment) => CommentModel.fromJson(jsonComment))
             .toList(),
       );
+}
 
+class PostCreateModel extends CreateModel {
+  final String title;
+
+  const PostCreateModel({
+    required String creator,
+    required this.title,
+    required String content,
+  }) : super(content: content, creator: creator);
+
+  @override
   Map<String, dynamic> get toJson => {
-        "id": id,
         "title": title,
         "creator": creator,
         "content": content,

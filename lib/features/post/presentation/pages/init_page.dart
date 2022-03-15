@@ -1,4 +1,5 @@
-import 'package:dartz/dartz.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
@@ -7,11 +8,9 @@ import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/pages/home_page.dart';
 import 'package:freedomwall/features/post/presentation/pages/specific_post_page.dart';
-import 'package:freedomwall/injection_container.dart';
 
 class InitPage extends StatelessWidget {
-  final Either<GetPostsEvent, GetPostByIdEvent> initialEvent;
-  // final Either<, SpecificPostPage> widgetToLoad;
+  final PostEvent initialEvent;
   const InitPage({
     required this.initialEvent,
     Key? key,
@@ -19,77 +18,68 @@ class InitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<PostBloc>(context).add(initialEvent);
     return Center(
-      child: BlocProvider<PostBloc>(
-        create: (context) => sl<PostBloc>(),
-        child: BlocBuilder<PostBloc, PostState>(
-          builder: (context, state) {
-            //initial state
-            if (state is Initial) {
-              BlocProvider.of<PostBloc>(context).add(const StreamPostsEvent());
-              // BlocProvider.of<PostBloc>(context).add(
-              //   initialEvent.fold(
-              //     (getPostsEvent) => getPostsEvent,
-              //     (getPostByIdEvent) => getPostByIdEvent,
-              //   ),
-              // );
-            }
-            if (state is Loading) {
-              return const LoadingWidget();
-            } else if (state is Error) {
+      child: BlocBuilder<PostBloc, PostState>(
+        builder: (context, state) {
+          //initial state
+          if (state is Initial) {
+            BlocProvider.of<PostBloc>(context).add(initialEvent);
+          }
+          if (state is Loading) {
+            return const LoadingWidget();
+          } else if (state is Error) {
+            return Container(
+              height: MediaQuery.of(context).size.height,
+              alignment: Alignment.center,
+              child: err.ErrorWidget(
+                message: state.message,
+              ),
+            );
+          } else if (state is PostsLoaded) {
+            log("state is PostsLoaded");
+            if (state.posts.isEmpty) {
               return Container(
                 height: MediaQuery.of(context).size.height,
                 alignment: Alignment.center,
-                child: err.ErrorWidget(
-                  message: state.message,
+                child: const err.ErrorWidget(
+                  message: "No Posts to show",
                 ),
               );
-            } else if (state is Loaded) {
-              if (state.posts.isEmpty) {
-                return Container(
-                  height: MediaQuery.of(context).size.height,
-                  alignment: Alignment.center,
-                  child: const err.ErrorWidget(
-                    message: "No Posts to show",
-                  ),
-                );
-              }
-              return initialEvent.fold(
-                (getPostsEvent) => HomePage(
-                  posts: state.posts,
-                ),
-                (getPostByIdEvent) => SpecificPostPage(
-                  post: state.posts[0],
-                ),
-              );
-            } else if (state is StreamConnected) {
-              // return const Text("data");
-              return StreamBuilder<List<Post>>(
-                stream: state.postStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const LoadingWidget();
-                  } else if (snapshot.connectionState ==
-                          ConnectionState.active ||
-                      snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasError) {
-                      return const err.ErrorWidget(
-                          message: "Server Failure...");
-                    } else if (snapshot.hasData) {
-                      return HomePage(posts: snapshot.data!);
-                    } else {
-                      return const Text('Empty data');
-                    }
-                  } else {
-                    return Text('State: ${snapshot.connectionState}');
-                  }
-                },
-              );
-            } else {
-              return const err.ErrorWidget(message: "Page Not Found");
             }
-          },
-        ),
+            return HomePage(posts: state.posts);
+          } else if (state is SinglePostLoaded) {
+            log("state is SinglePostLoaded");
+            return SpecificPostPage(post: state.post);
+          } else if (state is StreamConnected) {
+            // state.
+            log("state is StreamConnected");
+            return StreamBuilder<List<Post>>(
+              stream: state.postStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LoadingWidget();
+                } else if (snapshot.connectionState == ConnectionState.active ||
+                    snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return err.ErrorWidget(message: snapshot.error.toString());
+                  } else if (snapshot.hasData) {
+                    return HomePage(posts: snapshot.data!);
+                  } else {
+                    return const err.ErrorWidget(message: 'Empty data');
+                  }
+                } else {
+                  return err.ErrorWidget(
+                      message: 'State: ${snapshot.connectionState}');
+                }
+              },
+            );
+          } else if (state is PostCreated) {
+            return SpecificPostPage(post: state.post);
+          } else {
+            return const err.ErrorWidget(message: "Page Not Found");
+          }
+        },
       ),
     );
   }

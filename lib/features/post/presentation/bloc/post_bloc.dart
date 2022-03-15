@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freedomwall/core/utils/input_converter.dart';
+import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/data/models/post_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/domain/usecases/create_post.dart';
+import 'package:freedomwall/features/post/domain/usecases/create_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
 
 part 'post_event.dart';
@@ -17,12 +20,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final StreamPosts streamPosts;
   final GetPosts getPosts;
   final GetPostById getPostById;
-  final CreatePost createPost;
+  final CreateContent createContent;
+  final LikeDislikeContent likeDislikeContent;
   final InputConverter inputConverter;
 
   PostBloc({
     required this.streamPosts,
-    required this.createPost,
+    required this.createContent,
+    required this.likeDislikeContent,
     required this.getPosts,
     required this.getPostById,
     required this.inputConverter,
@@ -30,24 +35,28 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<StreamPostsEvent>((event, emit) async {
       emit(const Loading());
 
-      final post = await streamPosts(null);
+      final _post = await streamPosts(null);
 
-      post.fold((failure) {
+      _post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
         emit(StreamConnected(postStream: posts));
       });
     });
 
-    on<CreatePostEvent>((event, emit) async {
-      emit(const Loading());
+    on<CreateContentEvent>((event, emit) async {
+      if (event.content is PostModel) {
+        emit(const Loading());
+      }
 
-      final post = await createPost(event.post);
+      final post = await createContent(event.content);
 
       post.fold((failure) {
         emit(Error(message: failure.message));
-      }, (_) {
-        emit(const PostCreated());
+      }, (post) {
+        if (post is Post) {
+          emit(PostCreated(post: post));
+        }
       });
     });
 
@@ -60,48 +69,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       post.fold((failure) {
         emit(Error(message: failure.message));
       }, (posts) {
-        emit(Loaded(posts: [
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-          // ...posts,
-        ]));
+        emit(PostsLoaded(posts: posts));
       });
     });
 
@@ -123,11 +91,17 @@ class PostBloc extends Bloc<PostEvent, PostState> {
               emit(Error(message: failure.message));
             },
             (post) {
-              emit(Loaded(posts: [post]));
+              emit(SinglePostLoaded(post: post));
             },
           );
         },
       );
+    });
+
+    on<LikeDislikePostEvent>((event, emit) async {
+      final post = await likeDislikeContent(event.params);
+
+      if (post.isLeft()) post.leftMap((l) => emit(Error(message: l.message)));
     });
   }
 }
