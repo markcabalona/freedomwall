@@ -7,6 +7,7 @@ import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/domain/entities/comment.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/domain/repositories/post_repository.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 
 class PostRepositoryImpl implements PostRepository {
   final PostRemoteDataSource remoteDataSource;
@@ -74,6 +75,16 @@ class PostRepositoryImpl implements PostRepository {
   Future<Either<Failure, Stream<List<Post>>>> streamPosts() async {
     try {
       return Right(await remoteDataSource.streamPosts());
+    } on ServerException {
+      return const Left(ServerFailure(message: "Server Failure"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Post>> likeDislikeContent(
+      PostActionsParams action) async {
+    try {
+      return Right(await remoteDataSource.likeDislikeContent(action));
     } on ServerException {
       return const Left(ServerFailure(message: "Server Failure"));
     }

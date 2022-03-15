@@ -6,6 +6,7 @@ import 'package:freedomwall/features/post/domain/repositories/post_repository.da
 import 'package:freedomwall/features/post/domain/usecases/create_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -21,6 +22,7 @@ void init() {
     () => PostBloc(
         streamPosts: sl(),
         createContent: sl(),
+        likeDislikeContent: sl(),
         getPosts: sl(),
         getPostById: sl(),
         inputConverter: sl()),
@@ -29,6 +31,7 @@ void init() {
   //! Usecases
   sl.registerLazySingleton(() => StreamPosts(repository: sl()));
   sl.registerLazySingleton(() => CreateContent(repository: sl()));
+  sl.registerLazySingleton(() => LikeDislikeContent(repository: sl()));
   sl.registerLazySingleton(() => GetPosts(repository: sl()));
   sl.registerLazySingleton(() => GetPostById(repository: sl()));
 

@@ -47,3 +47,11 @@ class CreateContentEvent extends PostEvent {
   @override
   List<Object> get props => super.props + [content];
 }
+
+class LikeDislikePostEvent extends PostEvent{
+  final PostActionsParams params;
+  const LikeDislikePostEvent({required this.params});
+
+  @override
+  List<Object> get props => super.props + [params];
+}

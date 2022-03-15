@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/features/post/domain/entities/comment.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
+import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/widgets/comment/comments_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -90,7 +93,26 @@ class _PostActionsWidgetState extends State<PostActionsWidget> {
                           child: SizedBox.expand(
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Implement like
+                                BlocProvider.of<PostBloc>(context).add(
+                                  LikeDislikePostEvent(
+                                    params: PostActionsParams(
+                                      postId: widget.postId,
+                                      action: _liked
+                                          ? ParamsAction.unLike
+                                          : ParamsAction.like,
+                                    ),
+                                  ),
+                                );
+                                if (_disliked) {
+                                  BlocProvider.of<PostBloc>(context).add(
+                                    LikeDislikePostEvent(
+                                      params: PostActionsParams(
+                                        postId: widget.postId,
+                                        action: ParamsAction.unDislike,
+                                      ),
+                                    ),
+                                  );
+                                }
                                 setState(() {
                                   _disliked = false;
                                   _liked = !_liked;
@@ -116,7 +138,26 @@ class _PostActionsWidgetState extends State<PostActionsWidget> {
                           child: SizedBox.expand(
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Implemet dislike
+                                BlocProvider.of<PostBloc>(context).add(
+                                  LikeDislikePostEvent(
+                                    params: PostActionsParams(
+                                      postId: widget.postId,
+                                      action: _disliked
+                                          ? ParamsAction.unDislike
+                                          : ParamsAction.dislike,
+                                    ),
+                                  ),
+                                );
+                                if (_liked) {
+                                  BlocProvider.of<PostBloc>(context).add(
+                                    LikeDislikePostEvent(
+                                      params: PostActionsParams(
+                                        postId: widget.postId,
+                                        action: ParamsAction.unLike,
+                                      ),
+                                    ),
+                                  );
+                                }
                                 setState(() {
                                   _liked = false;
                                   _disliked = !_disliked;

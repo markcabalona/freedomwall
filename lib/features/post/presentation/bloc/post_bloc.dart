@@ -10,6 +10,7 @@ import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/domain/usecases/create_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_posts.dart';
 import 'package:freedomwall/features/post/domain/usecases/get_post_by_id.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
 
 part 'post_event.dart';
@@ -20,11 +21,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final GetPosts getPosts;
   final GetPostById getPostById;
   final CreateContent createContent;
+  final LikeDislikeContent likeDislikeContent;
   final InputConverter inputConverter;
 
   PostBloc({
     required this.streamPosts,
     required this.createContent,
+    required this.likeDislikeContent,
     required this.getPosts,
     required this.getPostById,
     required this.inputConverter,
@@ -93,6 +96,12 @@ class PostBloc extends Bloc<PostEvent, PostState> {
           );
         },
       );
+    });
+
+    on<LikeDislikePostEvent>((event, emit) async {
+      final post = await likeDislikeContent(event.params);
+
+      if (post.isLeft()) post.leftMap((l) => emit(Error(message: l.message)));
     });
   }
 }

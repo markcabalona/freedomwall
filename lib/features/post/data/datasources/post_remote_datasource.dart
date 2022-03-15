@@ -10,6 +10,7 @@ import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/data/datasources/constants.dart';
 import 'package:freedomwall/features/post/data/models/post_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
+import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -22,6 +23,8 @@ abstract class PostRemoteDataSource {
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post);
 
   Future<Stream<List<Post>>> streamPosts();
+
+  Future<PostModel> likeDislikeContent(PostActionsParams params);
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
@@ -36,7 +39,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
   @override
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post) {
-    String _endPoint = "postCreate/";
+    String _endPoint = "post/";
 
     if (post is CommentCreateModel) {
       _endPoint += "${post.postId}/comment";
@@ -119,5 +122,39 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       log(e.toString());
       throw (ServerException());
     }
+  }
+
+  @override
+  Future<PostModel> likeDislikeContent(PostActionsParams params) {
+    String _endPoint = "post/${params.postId}?action=";
+    switch (params.action) {
+      case ParamsAction.like:
+        _endPoint += "likes%2B%2B";
+        break;
+      case ParamsAction.unLike:
+        _endPoint += "likes--";
+        break;
+      case ParamsAction.dislike:
+        _endPoint += "dislikes%2B%2B";
+        break;
+      case ParamsAction.unDislike:
+        _endPoint += "dislikes--";
+        break;
+      default:
+    }
+    return http.put(
+      Uri.parse(apiUrl + _endPoint),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    ).then((result) {
+      if (result.statusCode == HttpStatus.accepted) {
+        var _ = PostModel.fromJson(jsonDecode(result.body));
+        log("Likes: ${_.likes } || Dislikes : ${_.dislikes}");
+        return _;
+      } else {
+        throw (ServerException());
+      }
+    }).onError((error, stackTrace) => throw (ServerException()));
   }
 }
