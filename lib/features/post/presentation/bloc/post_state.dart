@@ -25,7 +25,7 @@ class SinglePostLoaded extends PostState {
 }
 
 class PostsLoaded extends PostState {
-  final List<Post> posts;
+  final Stream<List<Post>> posts;
 
   const PostsLoaded({required this.posts});
 

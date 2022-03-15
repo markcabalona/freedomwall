@@ -37,17 +37,26 @@ class InitPage extends StatelessWidget {
               ),
             );
           } else if (state is PostsLoaded) {
-            log("state is PostsLoaded");
-            if (state.posts.isEmpty) {
-              return Container(
-                height: MediaQuery.of(context).size.height,
-                alignment: Alignment.center,
-                child: const err.ErrorWidget(
-                  message: "No Posts to show",
-                ),
-              );
-            }
-            return HomePage(posts: state.posts);
+            return StreamBuilder<List<Post>>(
+              stream: state.posts,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LoadingWidget();
+                } else if (snapshot.connectionState == ConnectionState.active ||
+                    snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return err.ErrorWidget(message: snapshot.error.toString());
+                  } else if (snapshot.hasData) {
+                    return HomePage(posts: snapshot.data!);
+                  } else {
+                    return const err.ErrorWidget(message: 'No Posts to show.');
+                  }
+                } else {
+                  return err.ErrorWidget(
+                      message: 'State: ${snapshot.connectionState}');
+                }
+              },
+            );
           } else if (state is SinglePostLoaded) {
             log("state is SinglePostLoaded");
             return SpecificPostPage(post: state.post);
@@ -66,7 +75,7 @@ class InitPage extends StatelessWidget {
                   } else if (snapshot.hasData) {
                     return HomePage(posts: snapshot.data!);
                   } else {
-                    return const err.ErrorWidget(message: 'Empty data');
+                    return const err.ErrorWidget(message: 'No Posts to show.');
                   }
                 } else {
                   return err.ErrorWidget(

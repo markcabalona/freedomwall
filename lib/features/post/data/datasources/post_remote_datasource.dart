@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:freedomwall/core/error/exceptions.dart';
+import 'package:freedomwall/core/usecases/usecase.dart';
 import 'package:freedomwall/features/post/data/models/comment_model.dart';
 import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/data/datasources/constants.dart';
@@ -18,22 +19,21 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 abstract class PostRemoteDataSource {
   Future<PostModel> getPostById(int postId);
 
-  Future<List<PostModel>> getPosts({String? creator, String? title});
-
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post);
 
-  Future<Stream<List<Post>>> streamPosts();
+  Future<Stream<List<Post>>> streamPosts(Params params);
 
   Future<PostModel> likeDislikeContent(PostActionsParams params);
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   final http.Client client;
-  final WebSocketChannel channel;
-  BehaviorSubject? _allPostStreamController;
+  // final WebSocketChannel channel;
+  BehaviorSubject? _allPostStreamCtrl;
+  WebSocketChannel? _filteredPostWebsocket;
 
   PostRemoteDataSourceImpl({
-    required this.channel,
+    // required this.channel,
     required this.client,
   });
 
@@ -68,24 +68,6 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<List<PostModel>> getPosts({String? creator, String? title}) {
-    return client.get(
-      Uri.parse(apiUrl + "post/?creator=${creator ?? ""}&title=${title ?? ""}"),
-      headers: {"Content-Type": "application/json"},
-    ).then((result) {
-      if (result.statusCode == HttpStatus.ok) {
-        List<dynamic> json = jsonDecode(result.body);
-        return List<PostModel>.generate(
-          json.length,
-          (index) => PostModel.fromJson(json[index]),
-        );
-      } else {
-        throw (ServerException());
-      }
-    }).onError((error, stackTrace) => throw (ServerException()));
-  }
-
-  @override
   Future<PostModel> getPostById(int postId) {
     return client.get(
       Uri.parse(apiUrl + "post/$postId/"),
@@ -100,17 +82,41 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<Stream<List<PostModel>>> streamPosts() async {
+  Future<Stream<List<PostModel>>> streamPosts(Params params) async {
     try {
-      channel.sink.add("");
-      if (_allPostStreamController == null) {
-        _allPostStreamController = BehaviorSubject<dynamic>.seeded(const []);
-        _allPostStreamController!.addStream(channel.stream);
+      // Open only one connection for all posts
+      if (_allPostStreamCtrl == null) {
+        final allPostsWebsocket =
+            WebSocketChannel.connect(Uri.parse("ws://localhost:8000/ws"));
+        allPostsWebsocket.sink.add("fetch all posts");
+        _allPostStreamCtrl = BehaviorSubject<dynamic>.seeded(const []);
+        _allPostStreamCtrl!.addStream(allPostsWebsocket.stream);
       }
 
-      return _allPostStreamController!.asyncMap<List<PostModel>>((event) {
-        List json = jsonDecode(event);
+      // _streamCtrl.stream will be returned from this function
+      BehaviorSubject _streamCtrl = _allPostStreamCtrl!;
 
+      // always close last filtered websocket connection
+      if (_filteredPostWebsocket != null) {
+        _filteredPostWebsocket!.sink.close();
+        _filteredPostWebsocket = null;
+      }
+
+      // open websocket connection for filtered posts
+      if (params.creator != null || params.title != null) {
+        _filteredPostWebsocket = WebSocketChannel.connect(Uri.parse(
+            "ws://localhost:8000/ws?creator=${params.creator ?? ""}&title=${params.title ?? ""}"));
+        _filteredPostWebsocket!.sink.add("fetch filtered posts");
+        BehaviorSubject _filteredPostStreamCtrl =
+            BehaviorSubject<dynamic>.seeded(const []);
+        _filteredPostStreamCtrl.addStream(_filteredPostWebsocket!.stream);
+
+        // _streamCtrl.stream will be returned
+        _streamCtrl = _filteredPostStreamCtrl;
+      }
+
+      return _streamCtrl.asyncMap<List<PostModel>>((event) {
+        List json = jsonDecode(event);
         final items = List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
 
@@ -150,7 +156,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     ).then((result) {
       if (result.statusCode == HttpStatus.accepted) {
         var _ = PostModel.fromJson(jsonDecode(result.body));
-        log("Likes: ${_.likes } || Dislikes : ${_.dislikes}");
+        log("Likes: ${_.likes} || Dislikes : ${_.dislikes}");
         return _;
       } else {
         throw (ServerException());

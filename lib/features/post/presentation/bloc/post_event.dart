@@ -8,27 +8,19 @@ abstract class PostEvent extends Equatable {
 }
 
 class GetPostsEvent extends PostEvent {
-  final String? creator;
-  final String? title;
-
-  const GetPostsEvent({
-    this.creator,
-    this.title,
-  });
+  final Params params;
+  const GetPostsEvent({required this.params});
 
   @override
-  List<Object> get props {
-    if (creator != null) {
-      super.props.add(creator!);
-    } else if (title != null) {
-      super.props.add(creator!);
-    }
-    return super.props;
-  }
+  List<Object> get props => super.props + [params];
 }
 
-class StreamPostsEvent extends PostEvent{
-  const StreamPostsEvent();
+class StreamPostsEvent extends PostEvent {
+  final Params params;
+  const StreamPostsEvent({required this.params});
+
+  @override
+  List<Object> get props => super.props + [params];
 }
 
 class GetPostByIdEvent extends PostEvent {
@@ -48,7 +40,7 @@ class CreateContentEvent extends PostEvent {
   List<Object> get props => super.props + [content];
 }
 
-class LikeDislikePostEvent extends PostEvent{
+class LikeDislikePostEvent extends PostEvent {
   final PostActionsParams params;
   const LikeDislikePostEvent({required this.params});
 

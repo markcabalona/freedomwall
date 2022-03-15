@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freedomwall/core/usecases/usecase.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/pages/init_page.dart';
@@ -40,7 +41,6 @@ class MyApp extends StatelessWidget {
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-
     final url = Uri.parse(settings.name ?? "");
 
     if (url.hasQuery) {
@@ -64,18 +64,20 @@ class Router {
           settings: settings,
           builder: (_) => InitPage(
             initialEvent: GetPostsEvent(
-              creator: creator,
-              title: title,
+              params: Params(
+                creator: creator,
+                title: title,
+              ),
             ),
           ),
         );
       }
-    } else if (["/posts/", "/posts", "/",""].contains(url.path)) {
+    } else if (["/posts/", "/posts", "/", ""].contains(url.path)) {
       log("Stream all");
       return MaterialPageRoute(
         settings: settings,
-        builder: (_) => const InitPage(
-          initialEvent: StreamPostsEvent(),
+        builder: (_) => InitPage(
+          initialEvent: StreamPostsEvent(params: Params()),
         ),
       );
     }
