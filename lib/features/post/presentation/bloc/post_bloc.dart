@@ -29,7 +29,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required this.likeDislikeContent,
     required this.getPostById,
     required this.inputConverter,
-  }) : super(const Initial()) {
+  }) : super(const Loading()) {
     on<StreamPostsEvent>((event, emit) async {
       emit(const Loading());
 

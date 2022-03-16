@@ -17,7 +17,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 abstract class PostRemoteDataSource {
-  Future<PostModel> getPostById(int postId);
+  Future<Stream<PostModel>> getPostById(int postId);
 
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post);
 
@@ -28,12 +28,13 @@ abstract class PostRemoteDataSource {
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   final http.Client client;
-  // final WebSocketChannel channel;
   BehaviorSubject? _allPostStreamCtrl;
+  final BehaviorSubject _specificPostStreamCtrl =
+      BehaviorSubject<dynamic>.seeded(const []);
   WebSocketChannel? _filteredPostWebsocket;
+  WebSocketChannel? _specificPostWebsocket;
 
   PostRemoteDataSourceImpl({
-    // required this.channel,
     required this.client,
   });
 
@@ -68,17 +69,31 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<PostModel> getPostById(int postId) {
-    return client.get(
-      Uri.parse(apiUrl + "post/$postId/"),
-      headers: {"Content-Type": "application/json"},
-    ).then((result) {
-      if (result.statusCode == HttpStatus.ok) {
-        return PostModel.fromJson(jsonDecode(result.body));
-      } else {
-        throw (ServerException());
-      }
-    }).onError((error, stackTrace) => throw (ServerException()));
+  Future<Stream<PostModel>> getPostById(int postId) async {
+    try {
+      _specificPostWebsocket?.sink.close();
+
+      _specificPostWebsocket =
+          WebSocketChannel.connect(Uri.parse("${websocketUrl}ws/post/$postId"));
+      _specificPostWebsocket!.sink.add("fetch specific post");
+
+      _specificPostStreamCtrl.addStream(_specificPostWebsocket!.stream);
+
+      return _specificPostStreamCtrl.stream.asyncMap<PostModel>((event) {
+        Map<String, dynamic> _json;
+        try {
+          _json = jsonDecode(event);
+        } catch (e) {
+          rethrow;
+        }
+
+        return PostModel.fromJson(_json);
+      }).handleError((e) {
+        log(e.toString());
+      });
+    } catch (e) {
+      throw (ServerException());
+    }
   }
 
   @override
@@ -87,42 +102,44 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       // Open only one connection for all posts
       if (_allPostStreamCtrl == null) {
         final allPostsWebsocket =
-            WebSocketChannel.connect(Uri.parse("ws://localhost:8000/ws"));
+            WebSocketChannel.connect(Uri.parse("${websocketUrl}ws"));
         allPostsWebsocket.sink.add("fetch all posts");
         _allPostStreamCtrl = BehaviorSubject<dynamic>.seeded(const []);
         _allPostStreamCtrl!.addStream(allPostsWebsocket.stream);
       }
 
-      // _streamCtrl.stream will be returned from this function
+      // _streamCtrl can be _allPostStreamCtrl or _filteredPostStreamCtrl
       BehaviorSubject _streamCtrl = _allPostStreamCtrl!;
 
       // always close last filtered websocket connection
-      if (_filteredPostWebsocket != null) {
-        _filteredPostWebsocket!.sink.close();
-        _filteredPostWebsocket = null;
-      }
+      _filteredPostWebsocket?.sink.close();
 
       // open websocket connection for filtered posts
       if (params.creator != null || params.title != null) {
         _filteredPostWebsocket = WebSocketChannel.connect(Uri.parse(
-            "ws://localhost:8000/ws?creator=${params.creator ?? ""}&title=${params.title ?? ""}"));
+            "${websocketUrl}ws/post/?creator=${params.creator ?? ""}&title=${params.title ?? ""}"));
         _filteredPostWebsocket!.sink.add("fetch filtered posts");
         BehaviorSubject _filteredPostStreamCtrl =
             BehaviorSubject<dynamic>.seeded(const []);
         _filteredPostStreamCtrl.addStream(_filteredPostWebsocket!.stream);
 
-        // _streamCtrl.stream will be returned
         _streamCtrl = _filteredPostStreamCtrl;
       }
 
       return _streamCtrl.asyncMap<List<PostModel>>((event) {
-        List json = jsonDecode(event);
+        List json;
+        try {
+          json = jsonDecode(event);
+        } catch (e) {
+          rethrow;
+        }
+
         final items = List<PostModel>.generate(
             json.length, (index) => PostModel.fromJson(json[index]));
 
         return items;
-      }).handleError((e) {
-        log(e.toString());
+      }).handleError((error) {
+        log(error.toString());
       });
     } catch (e) {
       log(e.toString());

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,9 +22,6 @@ class InitPage extends StatelessWidget {
       child: BlocBuilder<PostBloc, PostState>(
         builder: (context, state) {
           //initial state
-          if (state is Initial) {
-            BlocProvider.of<PostBloc>(context).add(initialEvent);
-          }
           if (state is Loading) {
             return const LoadingWidget();
           } else if (state is Error) {
@@ -46,7 +42,7 @@ class InitPage extends StatelessWidget {
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
                     return err.ErrorWidget(message: snapshot.error.toString());
-                  } else if (snapshot.hasData) {
+                  } if (snapshot.hasData) {
                     return HomePage(posts: snapshot.data!);
                   } else {
                     return const err.ErrorWidget(message: 'No Posts to show.');
@@ -58,11 +54,28 @@ class InitPage extends StatelessWidget {
               },
             );
           } else if (state is SinglePostLoaded) {
-            log("state is SinglePostLoaded");
-            return SpecificPostPage(post: state.post);
+            return StreamBuilder<Post>(
+              stream: state.post,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LoadingWidget();
+                } else if (snapshot.connectionState == ConnectionState.active ||
+                    snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return err.ErrorWidget(message: snapshot.error.toString());
+                  } if (snapshot.hasData) {
+                    return SpecificPostPage(post: snapshot.data!);
+                  } else {
+                    return const err.ErrorWidget(message: 'Post is unavailable.');
+                  }
+                } else {
+                  return err.ErrorWidget(
+                      message: 'State: ${snapshot.connectionState}');
+                }
+              },
+            );
           } else if (state is StreamConnected) {
             // state.
-            log("state is StreamConnected");
             return StreamBuilder<List<Post>>(
               stream: state.postStream,
               builder: (context, snapshot) {
@@ -72,7 +85,7 @@ class InitPage extends StatelessWidget {
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
                     return err.ErrorWidget(message: snapshot.error.toString());
-                  } else if (snapshot.hasData) {
+                  } if (snapshot.hasData) {
                     return HomePage(posts: snapshot.data!);
                   } else {
                     return const err.ErrorWidget(message: 'No Posts to show.');

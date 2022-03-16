@@ -9,7 +9,7 @@ import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.d
 abstract class PostRepository {
   Future<Either<Failure, Stream<List<Post>>>> streamPosts(Params params);
 
-  Future<Either<Failure, Post>> getPostById(int postId);
+  Future<Either<Failure, Stream<Post>>> getPostById(int postId);
 
   Future<Either<Failure, Content>> createContent(CreateModel post);
 

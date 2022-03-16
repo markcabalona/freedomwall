@@ -1,3 +1,4 @@
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,6 @@ class MyApp extends StatelessWidget {
             ),
       ),
       onGenerateRoute: Router.generateRoute,
-      // initialRoute: '/',
     );
   }
 }
@@ -42,6 +42,8 @@ class MyApp extends StatelessWidget {
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final url = Uri.parse(settings.name ?? "");
+
+    log(url.toString());
 
     if (url.hasQuery) {
       final Map<String, String> query = url.queryParameters;
@@ -51,7 +53,6 @@ class Router {
       id = query["id"];
 
       if (id != null) {
-        log("By id");
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => InitPage(
@@ -59,7 +60,6 @@ class Router {
           ),
         );
       } else {
-        log("Get by title or creator");
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => InitPage(
@@ -73,7 +73,6 @@ class Router {
         );
       }
     } else if (["/posts/", "/posts", "/", ""].contains(url.path)) {
-      log("Stream all");
       return MaterialPageRoute(
         settings: settings,
         builder: (_) => InitPage(
@@ -84,7 +83,7 @@ class Router {
     return MaterialPageRoute(
       settings: settings,
       builder: (_) => const err.ErrorWidget(
-        message: "Page Not Found",
+        message: "Page Not Found.",
       ),
     );
   }

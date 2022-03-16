@@ -18,7 +18,7 @@ class PostRepositoryImpl implements PostRepository {
   });
 
   @override
-  Future<Either<Failure, Post>> getPostById(int postId) async {
+  Future<Either<Failure, Stream<Post>>> getPostById(int postId) async {
     try {
       return Right(await remoteDataSource.getPostById(postId));
     } on ServerException {

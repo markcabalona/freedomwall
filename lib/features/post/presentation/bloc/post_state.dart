@@ -7,16 +7,13 @@ abstract class PostState extends Equatable {
   List<Object> get props => [];
 }
 
-class Initial extends PostState {
-  const Initial();
-}
 
 class Loading extends PostState {
   const Loading();
 }
 
 class SinglePostLoaded extends PostState {
-  final Post post;
+  final Stream<Post> post;
 
   const SinglePostLoaded({required this.post});
 

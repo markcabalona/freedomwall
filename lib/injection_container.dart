@@ -1,5 +1,4 @@
 import 'package:freedomwall/core/utils/input_converter.dart';
-import 'package:freedomwall/features/post/data/datasources/constants.dart';
 import 'package:freedomwall/features/post/data/datasources/post_remote_datasource.dart';
 import 'package:freedomwall/features/post/data/repositories/post_repository_impl.dart';
 import 'package:freedomwall/features/post/domain/repositories/post_repository.dart';
@@ -10,7 +9,6 @@ import 'package:freedomwall/features/post/domain/usecases/stream_post.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 final sl = GetIt.instance;
 
@@ -19,11 +17,11 @@ void init() {
   //Bloc
   sl.registerFactory(
     () => PostBloc(
-        streamPosts: sl(),
-        createContent: sl(),
-        likeDislikeContent: sl(),
-        getPostById: sl(),
-        inputConverter: sl()),
+        streamPosts: sl<StreamPosts>(),
+        createContent: sl<CreateContent>(),
+        likeDislikeContent: sl<LikeDislikeContent>(),
+        getPostById: sl<GetPostById>(),
+        inputConverter: sl<InputConverter>()),
   );
 
   //! Usecases
@@ -40,7 +38,6 @@ void init() {
   // Data sources
   sl.registerLazySingleton<PostRemoteDataSource>(() => PostRemoteDataSourceImpl(
         client: sl(),
-        // channel: sl(),
       ));
 
   //! Core
@@ -48,15 +45,5 @@ void init() {
 
   //! External
   sl.registerLazySingleton(() => http.Client());
-  // sl.registerLazySingleton(
-  //   () {
-  //     /*not sure if initializing websocket here is the best practice,
-  //  but i have to close the channel after using it */
-  //     // _channel = WebSocketChannel.connect(Uri.parse(websocketUrl));
-  //     return WebSocketChannel.connect(Uri.parse(websocketUrl));
-  //   },
-  //   dispose: (WebSocketChannel channel) {
-  //     channel.sink.close();
-  //   },
-  // );
+  
 }
