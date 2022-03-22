@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post/post_actions_widget.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post/post_body_widget.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post/post_header_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/post/post_actions_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/post/post_body_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/post/post_header_widget.dart';
+
+
+
 
 class PostWidget extends StatefulWidget {
   final Post post;
-  final double height = 200;
+  final double height = 300;
   final double? width;
   final bool? isExpanded;
   const PostWidget({

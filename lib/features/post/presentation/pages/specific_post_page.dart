@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/create_post_dialog.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post_searchbar_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/post/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/create_post_dialog.dart';
+
+import 'package:freedomwall/features/post/presentation/widgets/web/post_searchbar_widget.dart';
 
 class SpecificPostPage extends StatelessWidget {
   final Post post;
@@ -13,6 +14,7 @@ class SpecificPostPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double _width = MediaQuery.of(context).size.width;
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           elevation: 20,
@@ -46,12 +48,12 @@ class SpecificPostPage extends StatelessWidget {
         body: SingleChildScrollView(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: kToolbarHeight, horizontal: 80),
+              padding: EdgeInsets.symmetric(
+                  vertical: 20, horizontal: _width * .025 ),
               child: PostWidget(
                 post: post,
                 isExpanded: true,
-                width: 600,
+                width: 800,
               ),
             ),
           ),

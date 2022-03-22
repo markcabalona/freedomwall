@@ -43,12 +43,15 @@ class CreatePostDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 10,
-                    child: Text(
-                      "FreedomWall",
-                      style: TextStyle(
-                          fontSize:
-                              Theme.of(context).textTheme.headline3?.fontSize,
-                          color: Theme.of(context).primaryColorLight),
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        "FreedomWall",
+                        style: TextStyle(
+                            fontSize:
+                                Theme.of(context).textTheme.headline3?.fontSize,
+                            color: Theme.of(context).primaryColorLight),
+                      ),
                     ),
                   ),
                   Expanded(

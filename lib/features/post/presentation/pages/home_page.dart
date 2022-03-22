@@ -3,9 +3,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freedomwall/core/widgets/error_widget.dart' as err;
 
 import 'package:freedomwall/features/post/domain/entities/post.dart';
-import 'package:freedomwall/features/post/presentation/widgets/create_post_dialog.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post/post_widget.dart';
-import 'package:freedomwall/features/post/presentation/widgets/post_searchbar_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/post/post_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/create_post_dialog.dart';
+
+import 'package:freedomwall/features/post/presentation/widgets/web/post_searchbar_widget.dart';
 
 class HomePage extends StatelessWidget {
   final List<Post> posts;
@@ -53,10 +54,9 @@ class HomePage extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               addAutomaticKeepAlives: true,
               addRepaintBoundaries: true,
-              // cacheExtent: 10,
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 vertical: 20,
-                horizontal: 80,
+                horizontal: _width * .025,
               ),
               gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: _width < 1000 ? 600 : 400,

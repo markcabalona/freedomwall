@@ -18,7 +18,7 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
     if (_searchKey.currentState!.validate()) {
       var _params = _searchFilter + "=" + _searchCtrl.text;
       if (_searchFilter == 'id') {
-        _params ="id="+ _searchCtrl.text.replaceAll("#fw", '');
+        _params = "id=" + _searchCtrl.text.replaceAll("#fw", '');
       }
       Navigator.restorablePopAndPushNamed(context, '/posts/?$_params');
     }
@@ -39,8 +39,9 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final double _width = MediaQuery.of(context).size.width;
     return SizedBox(
-      width: 350,
+      width: _width > 480 ? _width * .4 : _width * .5,
       height: kToolbarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -71,9 +72,9 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
               fontSize: Theme.of(context).textTheme.caption?.fontSize,
             ),
             suffixIcon: Container(
-              width: 100,
               padding: const EdgeInsets.only(right: 10),
               child: DropdownButton<String>(
+                underline: const SizedBox(),
                 items: <String>['title', 'creator', 'id'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

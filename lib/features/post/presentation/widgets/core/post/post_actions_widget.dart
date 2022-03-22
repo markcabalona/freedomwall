@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/features/post/domain/entities/comment.dart';
 import 'package:freedomwall/features/post/domain/usecases/like_dislike_content.dart';
 import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
-import 'package:freedomwall/features/post/presentation/widgets/comment/comments_widget.dart';
+import 'package:freedomwall/features/post/presentation/widgets/core/comment/comments_widget.dart';
+
 import 'package:intl/intl.dart';
 
 class PostActionsWidget extends StatefulWidget {
@@ -42,9 +43,10 @@ class _PostActionsWidgetState extends State<PostActionsWidget> {
       child: Column(
         children: [
           SizedBox(
-            height: 20,
+            height: 30,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment:CrossAxisAlignment.center,
               children: [
                 Text("${numFormat.format(widget.likes)} likes"),
                 Text("${numFormat.format(widget.dislikes)} dislikes"),

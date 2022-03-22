@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:cron/cron.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freedomwall/core/error/exceptions.dart';
 import 'package:freedomwall/core/usecases/usecase.dart';
@@ -28,15 +29,17 @@ abstract class PostRemoteDataSource {
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   final http.Client client;
-  BehaviorSubject? _allPostStreamCtrl;
+  final Cron _cron = Cron();
   final BehaviorSubject _specificPostStreamCtrl =
       BehaviorSubject<dynamic>.seeded(const []);
-  WebSocketChannel? _filteredPostWebsocket;
+  WebSocketChannel? _postsWebsocket;
   WebSocketChannel? _specificPostWebsocket;
 
   PostRemoteDataSourceImpl({
     required this.client,
-  });
+  }){
+    _keepAlive();
+  }
 
   @override
   Future<Either<PostModel, CommentModel>> createContent(CreateModel post) {
@@ -71,11 +74,12 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   @override
   Future<Stream<PostModel>> getPostById(int postId) async {
     try {
-      _specificPostWebsocket?.sink.close();
+      await _postsWebsocket?.sink.close();
+      await _specificPostWebsocket?.sink.close();
 
       _specificPostWebsocket =
           WebSocketChannel.connect(Uri.parse("${websocketUrl}ws/post/$postId"));
-      _specificPostWebsocket!.sink.add("fetch specific post");
+        _specificPostWebsocket!.sink.add("Fetch post");
 
       _specificPostStreamCtrl.addStream(_specificPostWebsocket!.stream);
 
@@ -99,32 +103,16 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   @override
   Future<Stream<List<PostModel>>> streamPosts(Params params) async {
     try {
-      // Open only one connection for all posts
-      if (_allPostStreamCtrl == null) {
-        final allPostsWebsocket =
-            WebSocketChannel.connect(Uri.parse("${websocketUrl}ws"));
-        allPostsWebsocket.sink.add("fetch all posts");
-        _allPostStreamCtrl = BehaviorSubject<dynamic>.seeded(const []);
-        _allPostStreamCtrl!.addStream(allPostsWebsocket.stream);
-      }
+      BehaviorSubject _streamCtrl = BehaviorSubject<dynamic>.seeded(const []);
+      //always close last websocket connecton
+      await _postsWebsocket?.sink.close();
+      await _specificPostWebsocket?.sink.close();
+      //open a new websocket connection
+      _postsWebsocket = WebSocketChannel.connect(Uri.parse(
+          "${websocketUrl}ws?creator=${params.creator ?? ""}&title=${params.title ?? ""}"));
+      _postsWebsocket!.sink.add("Fetch posts");
 
-      // _streamCtrl can be _allPostStreamCtrl or _filteredPostStreamCtrl
-      BehaviorSubject _streamCtrl = _allPostStreamCtrl!;
-
-      // always close last filtered websocket connection
-      _filteredPostWebsocket?.sink.close();
-
-      // open websocket connection for filtered posts
-      if (params.creator != null || params.title != null) {
-        _filteredPostWebsocket = WebSocketChannel.connect(Uri.parse(
-            "${websocketUrl}ws/post/?creator=${params.creator ?? ""}&title=${params.title ?? ""}"));
-        _filteredPostWebsocket!.sink.add("fetch filtered posts");
-        BehaviorSubject _filteredPostStreamCtrl =
-            BehaviorSubject<dynamic>.seeded(const []);
-        _filteredPostStreamCtrl.addStream(_filteredPostWebsocket!.stream);
-
-        _streamCtrl = _filteredPostStreamCtrl;
-      }
+      _streamCtrl.addStream(_postsWebsocket!.stream);
 
       return _streamCtrl.asyncMap<List<PostModel>>((event) {
         List json;
@@ -172,12 +160,21 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       },
     ).then((result) {
       if (result.statusCode == HttpStatus.accepted) {
-        var _ = PostModel.fromJson(jsonDecode(result.body));
-        log("Likes: ${_.likes} || Dislikes : ${_.dislikes}");
-        return _;
+        var post = PostModel.fromJson(jsonDecode(result.body));
+        log("Likes: ${post.likes} || Dislikes : ${post.dislikes}");
+        return post;
       } else {
         throw (ServerException());
       }
     }).onError((error, stackTrace) => throw (ServerException()));
+  }
+
+  void _keepAlive(){
+    log("Keeping websockets alive");
+    _cron.schedule(Schedule.parse("*/30 * * * * *"), () {
+      log("Packet sent");
+      _postsWebsocket?.sink.add("keep-alive");
+      _specificPostWebsocket?.sink.add("keep-alive");
+    });
   }
 }
