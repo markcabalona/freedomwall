@@ -40,7 +40,10 @@ class _PostActionsWidgetState extends State<PostActionsWidget> {
   @override
   Widget build(BuildContext context) {
     NumberFormat numFormat = NumberFormat.compact();
-    return Center(
+    return ConstrainedBox(
+      constraints: _showComments?const BoxConstraints(): const BoxConstraints(
+        minHeight: 100,
+      ),
       child: Column(
         children: [
           SizedBox(

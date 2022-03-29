@@ -40,7 +40,7 @@ class FirebaseDatasource implements PostRemoteDataSource {
       final _postSnapshot = _postsRef.doc(postId).snapshots();
       return _postSnapshot.asyncMap((_post) async {
         final _comments = await _commentsRef
-            .where('post_id', isEqualTo: _post.reference)
+            .where('post_ref', isEqualTo: _post.reference)
             .get();
 
         final _commentList = _comments.docs

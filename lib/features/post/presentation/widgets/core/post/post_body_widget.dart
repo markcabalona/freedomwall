@@ -42,30 +42,35 @@ class _PostBodyWidgetState extends State<PostBodyWidget> {
             ? (_width > 760 ? (_width / 2) : _width) - 160
             : (_width / 3) - 160);
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 500),
-      curve: _isExpanded ? Curves.easeOut : Curves.bounceOut,
-      child: Column(
-        children: [
-          SelectableText(tp.text!.toPlainText(),
-              textAlign: TextAlign.left,
-              scrollPhysics: const NeverScrollableScrollPhysics(),
-              // overflow: TextOverflow.fade,
-              maxLines: _isExpanded ? null : tp.maxLines,
-              style: tp.text!.style),
-          tp.didExceedMaxLines
-              ? TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
-                  child: Text(_isExpanded ? "See less" : "...See more"),
-                )
-              : const SizedBox(
-                  height: 12,
-                ),
-        ],
+    return ConstrainedBox(
+      constraints: _isExpanded?const BoxConstraints(): const BoxConstraints(
+        minHeight: 100,
+      ),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 500),
+        curve: _isExpanded ? Curves.easeOut : Curves.bounceOut,
+        child: Column(
+          children: [
+            SelectableText(tp.text!.toPlainText(),
+                textAlign: TextAlign.left,
+                scrollPhysics: const NeverScrollableScrollPhysics(),
+                // overflow: TextOverflow.fade,
+                maxLines: _isExpanded ? null : tp.maxLines,
+                style: tp.text!.style),
+            tp.didExceedMaxLines
+                ? TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    child: Text(_isExpanded ? "See less" : "...See more"),
+                  )
+                : const SizedBox(
+                    height: 12,
+                  ),
+          ],
+        ),
       ),
     );
   }

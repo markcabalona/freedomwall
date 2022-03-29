@@ -58,11 +58,17 @@ class _PostWidgetState extends State<PostWidget>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header
-                PostHeaderWidget(
-                  title: widget.post.title,
-                  creator: widget.post.creator,
-                  postId: widget.post.id,
-                  dateCreated: widget.post.dateCreated,
+                SizedBox(
+                  height: 100,
+                  child: PostHeaderWidget(
+                    title: widget.post.title,
+                    creator: widget.post.creator,
+                    postId: widget.post.id,
+                    dateCreated: widget.post.dateCreated,
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
                 ),
                 // Body - post content
                 PostBodyWidget(
