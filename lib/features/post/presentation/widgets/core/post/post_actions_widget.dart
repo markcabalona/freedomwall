@@ -8,7 +8,8 @@ import 'package:freedomwall/features/post/presentation/widgets/core/comment/comm
 import 'package:intl/intl.dart';
 
 class PostActionsWidget extends StatefulWidget {
-  final int likes, dislikes, postId;
+  final int likes, dislikes;
+  final String postId;
   final List<Comment> comments;
   final bool showComments;
 

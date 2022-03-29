@@ -18,13 +18,13 @@ import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 abstract class PostRemoteDataSource {
-  Future<Stream<PostModel>> getPostById(int postId);
+  Future<Stream<PostModel>> getPostById(String postId);
 
-  Future<Either<PostModel, CommentModel>> createContent(CreateModel post);
+  Future<void> createContent(CreateModel post);
 
   Future<Stream<List<Post>>> streamPosts(Params params);
 
-  Future<PostModel> likeDislikeContent(PostActionsParams params);
+  Future<void> likeDislikeContent(PostActionsParams params);
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
@@ -72,7 +72,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<Stream<PostModel>> getPostById(int postId) async {
+  Future<Stream<PostModel>> getPostById(String postId) async {
     try {
       await _postsWebsocket?.sink.close();
       await _specificPostWebsocket?.sink.close();

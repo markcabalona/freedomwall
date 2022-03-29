@@ -1,6 +1,6 @@
-
 import 'dart:developer';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freedomwall/core/usecases/usecase.dart';
@@ -9,7 +9,23 @@ import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 import 'package:freedomwall/features/post/presentation/pages/init_page.dart';
 import 'injection_container.dart' as di;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    // Replace with actual values
+    options: const FirebaseOptions(
+        // apiKey: "XXX",
+        // appId: "XXX",
+        // messagingSenderId: "XXX",
+        // projectId: "XXX",
+        apiKey: "AIzaSyCM8_Rw7CkuPqCynXMYXUYjLenkPmIfPfw",
+        authDomain: "freedomwall-67040.firebaseapp.com",
+        projectId: "freedomwall-67040",
+        storageBucket: "freedomwall-67040.appspot.com",
+        messagingSenderId: "702454975706",
+        appId: "1:702454975706:web:2d95281d1c27518c41a9e3",
+        measurementId: "G-DPNDJ7T133"),
+  );
   di.init();
   runApp(BlocProvider(
     create: (context) => di.sl<PostBloc>(),

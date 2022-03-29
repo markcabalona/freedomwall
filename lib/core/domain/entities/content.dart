@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class Content extends Equatable {
-  final int id;
+  final String id;
   final String creator;
   final String content;
   final DateTime dateCreated;

@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,12 +43,15 @@ class InitPage extends StatelessWidget {
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
                     return err.ErrorWidget(message: snapshot.error.toString());
-                  } if (snapshot.hasData) {
+                  }
+                  if (snapshot.hasData) {
                     return HomePage(posts: snapshot.data!);
                   } else {
+                    
                     return const err.ErrorWidget(message: 'No Posts to show.');
                   }
                 } else {
+                  log(snapshot.stackTrace.runtimeType.toString());
                   return err.ErrorWidget(
                       message: 'State: ${snapshot.connectionState}');
                 }
@@ -63,10 +67,12 @@ class InitPage extends StatelessWidget {
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
                     return err.ErrorWidget(message: snapshot.error.toString());
-                  } if (snapshot.hasData) {
+                  }
+                  if (snapshot.hasData) {
                     return SpecificPostPage(post: snapshot.data!);
                   } else {
-                    return const err.ErrorWidget(message: 'Post is unavailable.');
+                    return const err.ErrorWidget(
+                        message: 'Post is unavailable.');
                   }
                 } else {
                   return err.ErrorWidget(
@@ -85,7 +91,8 @@ class InitPage extends StatelessWidget {
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
                     return err.ErrorWidget(message: snapshot.error.toString());
-                  } if (snapshot.hasData) {
+                  }
+                  if (snapshot.hasData) {
                     return HomePage(posts: snapshot.data!);
                   } else {
                     return const err.ErrorWidget(message: 'No Posts to show.');

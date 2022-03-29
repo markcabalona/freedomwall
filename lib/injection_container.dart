@@ -1,4 +1,5 @@
 import 'package:freedomwall/core/utils/input_converter.dart';
+import 'package:freedomwall/features/post/data/datasources/firebase_datasource.dart';
 import 'package:freedomwall/features/post/data/datasources/post_remote_datasource.dart';
 import 'package:freedomwall/features/post/data/repositories/post_repository_impl.dart';
 import 'package:freedomwall/features/post/domain/repositories/post_repository.dart';
@@ -39,11 +40,11 @@ void init() {
   sl.registerLazySingleton<PostRemoteDataSource>(() => PostRemoteDataSourceImpl(
         client: sl(),
       ));
+  sl.registerLazySingleton<FirebaseDatasource>(() => FirebaseDatasource());
 
   //! Core
   sl.registerLazySingleton(() => InputConverter());
 
   //! External
   sl.registerLazySingleton(() => http.Client());
-  
 }

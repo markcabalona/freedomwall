@@ -17,6 +17,7 @@ class CreatePostDialog extends StatelessWidget {
     if (val == null || val.isEmpty) {
       return "Field can not be blank.";
     }
+    return null;
   }
 
   @override

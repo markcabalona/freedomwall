@@ -1,7 +1,7 @@
 import 'package:freedomwall/core/domain/entities/content.dart';
 
 class Comment extends Content {
-  final int postId;
+  final String postId;
 
   const Comment({
     required id,

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freedomwall/core/usecases/usecase.dart';
@@ -52,9 +50,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       post.fold((failure) {
         emit(Error(message: failure.message));
       }, (post) {
-        if (post is Post) {
-          emit(PostCreated(post: post));
-        }
+        return;
       });
     });
 
@@ -73,24 +69,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<GetPostByIdEvent>((event, emit) async {
       emit(const Loading());
 
-      final inputEither = inputConverter.stringToInt(event.postId);
+      final post = await getPostById(event.postId);
 
-      await inputEither.fold(
+      post.fold(
         (failure) {
-          log(failure.message);
-          emit(Error(message: "Post with id ${event.postId} not found."));
+          emit(Error(message: failure.message));
         },
-        (integer) async {
-          final post = await getPostById(integer);
-
-          post.fold(
-            (failure) {
-              emit(Error(message: failure.message));
-            },
-            (post) {
-              emit(SinglePostLoaded(post: post));
-            },
-          );
+        (post) {
+          emit(SinglePostLoaded(post: post));
         },
       );
     });

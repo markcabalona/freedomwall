@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freedomwall/features/post/data/models/comment_model.dart';
 import 'package:freedomwall/features/post/data/models/create_model.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
@@ -24,15 +25,15 @@ class PostModel extends Post {
         );
 
   factory PostModel.fromJson(Map<String, dynamic> json) => PostModel(
-        id: json["id"] as int,
+        id: (json["id"]),
         creator: json["creator"] as String,
         title: json["title"] as String,
         content: json["content"] as String,
-        dateCreated: DateTime.parse(json["date_created"] as String),
+        dateCreated: (json["date_created"] as Timestamp).toDate(),
         likes: json["likes"] as int,
         dislikes: json["dislikes"] as int,
-        comments: (json["comments"] as List)
-            .map((jsonComment) => CommentModel.fromJson(jsonComment))
+        comments: (json['comments'] as List)
+            .map((e) => CommentModel.fromJson(e))
             .toList(),
       );
 }
@@ -51,5 +52,8 @@ class PostCreateModel extends CreateModel {
         "title": title,
         "creator": creator,
         "content": content,
+        "date_created": Timestamp.fromDate(DateTime.now()),
+        "likes": 0,
+        "dislikes": 0,
       };
 }

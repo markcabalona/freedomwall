@@ -35,6 +35,8 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
       RegExp _regex = RegExp(r'^#fw([0-9]+)$');
       return _regex.hasMatch(val) ? null : "Invalid Post ID";
     }
+
+    return null;
   }
 
   @override

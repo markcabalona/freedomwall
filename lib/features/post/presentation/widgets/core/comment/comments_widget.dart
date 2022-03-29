@@ -6,7 +6,7 @@ import 'package:freedomwall/features/post/presentation/bloc/post_bloc.dart';
 
 class CommentsWidget extends StatefulWidget {
   final List<Comment> comments;
-  final int postId;
+  final String postId;
   const CommentsWidget({required this.comments, required this.postId, Key? key})
       : super(key: key);
 

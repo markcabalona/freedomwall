@@ -61,7 +61,8 @@ class _PostWidgetState extends State<PostWidget>
                 PostHeaderWidget(
                   title: widget.post.title,
                   creator: widget.post.creator,
-                  postId: widget.post.id.toString(),
+                  postId: widget.post.id,
+                  dateCreated: widget.post.dateCreated,
                 ),
                 // Body - post content
                 PostBodyWidget(
