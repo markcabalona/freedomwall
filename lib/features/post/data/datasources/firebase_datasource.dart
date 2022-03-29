@@ -41,8 +41,9 @@ class FirebaseDatasource implements PostRemoteDataSource {
       return _postSnapshot.asyncMap((_post) async {
         final _comments = await _commentsRef
             .where('post_ref', isEqualTo: _post.reference)
+            .orderBy('date_created')
             .get();
-
+            
         final _commentList = _comments.docs
             .map((doc) => doc.data()..addEntries({'id': doc.id}.entries))
             .toList();
