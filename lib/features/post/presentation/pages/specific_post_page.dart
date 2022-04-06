@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:freedomwall/features/post/domain/entities/post.dart';
 import 'package:freedomwall/features/post/presentation/widgets/core/post/post_widget.dart';
 import 'package:freedomwall/features/post/presentation/widgets/core/create_post_dialog.dart';
+import 'package:freedomwall/features/post/presentation/widgets/mobile/post_search_bar_mobile.dart';
 
 import 'package:freedomwall/features/post/presentation/widgets/web/post_searchbar_widget.dart';
 
@@ -41,15 +42,15 @@ class SpecificPostPage extends StatelessWidget {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          actions: const [
-            PostSearchBarWidget(),
+          actions: [
+            _width > 600 ? const PostSearchBarWidget() : const PostSearchBarMobile(),
           ],
         ),
         body: SingleChildScrollView(
           child: Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: 20, horizontal: _width * .025 ),
+              padding:
+                  EdgeInsets.symmetric(vertical: 20, horizontal: _width * .025),
               child: PostWidget(
                 post: post,
                 isExpanded: true,

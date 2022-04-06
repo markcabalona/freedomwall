@@ -25,6 +25,8 @@ abstract class PostRemoteDataSource {
   Future<Stream<List<Post>>> streamPosts(Params params);
 
   Future<void> likeDislikeContent(PostActionsParams params);
+
+  Future<List<Tuple3<String, String, String>>> getAllTitlesAndCreators();
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
@@ -176,5 +178,11 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       _postsWebsocket?.sink.add("keep-alive");
       _specificPostWebsocket?.sink.add("keep-alive");
     });
+  }
+
+  @override
+  Future<List<Tuple3<String, String, String>>> getAllTitlesAndCreators() {
+    // TODO: implement getAllTitlesAndCreators
+    throw UnimplementedError();
   }
 }

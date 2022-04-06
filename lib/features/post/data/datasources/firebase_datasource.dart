@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:freedomwall/core/error/exceptions.dart';
 import 'package:freedomwall/core/usecases/usecase.dart';
 import 'package:freedomwall/features/post/data/datasources/post_remote_datasource.dart';
@@ -43,7 +44,7 @@ class FirebaseDatasource implements PostRemoteDataSource {
             .where('post_ref', isEqualTo: _post.reference)
             .orderBy('date_created')
             .get();
-            
+
         final _commentList = _comments.docs
             .map((doc) => doc.data()..addEntries({'id': doc.id}.entries))
             .toList();
@@ -140,5 +141,18 @@ class FirebaseDatasource implements PostRemoteDataSource {
       log(e.toString());
       throw (ServerException());
     }
+  }
+
+  @override
+  Future<List<Tuple3<String, String, String>>> getAllTitlesAndCreators() async {
+    final posts = await _postsRef.get();
+    return posts.docs.map((doc) {
+      final _doc = doc.data();
+      return Tuple3<String, String, String>(
+        _doc['title'],
+        _doc['creator'],
+        doc.id,
+      );
+    }).toList();
   }
 }

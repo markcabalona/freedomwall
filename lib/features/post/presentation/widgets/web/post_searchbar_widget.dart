@@ -41,9 +41,9 @@ class _PostSearchBarWidgetState extends State<PostSearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final double _width = MediaQuery.of(context).size.width;
+    // final double _width = MediaQuery.of(context).size.width;
     return SizedBox(
-      width: _width > 480 ? _width * .4 : _width * .5,
+      width: 350,
       height: kToolbarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(
